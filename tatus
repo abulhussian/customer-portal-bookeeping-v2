@@ -1,0 +1,28 @@
+[33mf172265[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m, [m[1;31morigin/test-dev[m[33m, [m[1;31morigin/dev[m[33m, [m[1;32mtest-dev[m[33m, [m[1;32mmain[m[33m)[m  conditiing rendering issues fixed
+[33m7ebf7c0[m  filter issues are fixed
+[33m8c9511a[m no returns addede
+[33mdd34002[m added  eye icons and scroll and BAse url
+[33mddfb445[m pagination added flters added
+[33m92bfcf4[m filters changes added
+[33mff97114[m razorpay pay issues fixed
+[33m8e57285[m merge conflict alos solved
+[33mb9a85b7[m added authorazation
+[33mb14f773[m Update page.jsx
+[33m90f35b7[m login page added
+[33mf1f9501[m adddee .env files
+[33m467a3eb[m  scroll bar issues fixed
+[33m21fff73[m scrollabar and header and sidebar issues fixed
+[33m0509475[m scrolling issues
+[33ma9c16ca[m issues resloving of scrolling
+[33me8ed357[m resloved conflicts and changes were fixed
+[33mfc588ac[m  sidebar blur and make the modal center
+[33mf4b42b1[m pagination bottom fixed
+[33mcf74040[m pagiantion changes
+[33m09e0022[m changes  in all pages desgin
+[33mce3269a[m dashboard changes
+[33ma20ccae[m payment scroll sloved
+[33m1e3044e[m colors chnaged in returns
+[33m455f02f[m testing changes are done
+[33m22620d2[m changes in all pages are done
+[33m67c16fb[m login,register changes are done
+[33mec3bc1e[m First commit
