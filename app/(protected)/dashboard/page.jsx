@@ -51,7 +51,7 @@ const Dashboard = () => {
         }
       })
       if (!response.ok) {
-       toast.error('Failed to fetch invoices')
+        toast.error('Failed to fetch invoices')
       }
       const apiInvoices = await response.json()
 
@@ -132,7 +132,7 @@ const Dashboard = () => {
     }
   }
 
-  
+
 
   const stats = {
     totalReturns: returns.length,
@@ -174,216 +174,214 @@ const Dashboard = () => {
 
   return (
     loading ? (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    ) : (
-      <main className="flex flex-col overflow-hidden p-4 lg:pl-4 ">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="space-y-1 "
-        >
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {/* Card 1 - Top Left Rounded */}
-            <div
-  className=" top-[105px] left-[106px] w-[234px] h-[142px] bg-[url('/Rectangle145138.svg')] bg-no-repeat bg-[length:100%_100%] shadow-lg hover:shadow-xl transition-all duration-300 rounded-tl-[50px] flex flex-col pt-4 pl-4 text-start"
->
-  <div className="flex items-center gap-2 text-white w-full">
-    <div className="w-1/6 border-b-2 pb-2 border-[#604881]">
-      <div className="p-1 flex justify-center items-center rounded-full bg-[#604881]">
-        <FileText className="h-5 w-5" />
-      </div>
-    </div>
-    <h3 className="text-sm font-bold pb-2">Total Returns</h3>
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
   </div>
-
-  <div className="text-2xl font-bold text-white mt-4 pl-2">
-    {stats.totalReturns}
-  </div>
-</div>
-
-
-            {/* Card 2 - Normal */}
-            <div className=" bg-[url('/Rectangle145211orange.svg')] bg-no-repeat bg-[length:100%_100%] shadow-lg hover:shadow-xl transition-all duration-300 rounded-[6px] flex flex-col pt-4 pl-2 text-start ">
-              <div className="flex items-center  gap-2 text-white w-full">
-                <div className="w-1/6 border-b-2 pb-2 border-[#df530a] ">
-                  <div className="p-1 flex justify-center items-center rounded-full bg-[#df530a]">
-                    <FileText className="h-5 w-5" />
-                  </div>
-                </div>
-                <h3 className="text-sm font-bold pb-2">Pending Returns</h3>
+) : (
+  <main className="flex flex-col overflow-hidden max-h-[calc(100vh-50px)] overflow-y-auto p-4 lg:pl-4">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-4"
+    >
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
+        {/* Card 1 - Top Left Rounded */}
+        <div className="w-full h-[142px] bg-[url('/Rectangle145138.svg')] bg-no-repeat bg-cover shadow-lg hover:shadow-xl transition-all duration-300 rounded-tl-[30px] sm:rounded-tl-[50px] rounded-tr-[6px] rounded-br-[6px] rounded-bl-[6px] flex flex-col pt-4 pl-4 text-start">
+          <div className="flex items-center gap-2 text-white w-full">
+            <div className="w-1/6 min-w-[40px] border-b-2 pb-2 border-[#604881]">
+              <div className="p-1 flex justify-center items-center rounded-full bg-[#604881]">
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
-              <div className="text-2xl font-bold text-white mt-4 pl-2">{stats.pendingReturns}</div>
             </div>
-
-            {/* Card 3 - Bottom Right Rounded */}
-            <div className="bg-[url('/Rectangle145235blue.svg')] bg-no-repeat bg-[length:100%_100%] shadow-lg hover:shadow-xl transition-all duration-300 rounded-br-[50px] flex flex-col pt-4 pl-2 text-start">
-              <div className="flex items-center  gap-2 text-white ">
-                <div className="w-1/6 border-b-2 pb-2 border-[#1d2587] ">
-                  <div className="p-1 flex justify-center items-center rounded-full bg-[#1d2587]">
-                    <FileText className="h-5 w-5" />
-                  </div>
-                </div>
-                <h3 className="text-sm font-bold pb-2">Outstanding Invoices</h3>
-              </div>
-              <div className="text-2xl font-bold text-white mt-4 pl-2">{stats.unpaidInvoices}</div>
-            </div>
+            <h3 className="text-xs sm:text-sm font-bold pb-2">Total Returns</h3>
           </div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
-            {/* Recent Returns */}
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Recent Tax Returns</CardTitle>
-                    <CardDescription>Your 5 most recent tax return filings</CardDescription>
-                  </div>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href="/dashboard/returns">
-                      View All
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Link>
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <div className="flex justify-center items-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    </div>
-                  ) : returns.length > 0 ? (
-                    <div className="space-y-2">
-                      {recentReturns.map((returnItem) => (
-                        <motion.div
-                          key={returnItem.return_id}
-                          whileHover={{ scale: 1.01 }}
-                          className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                              <FileText className="w-5 h-5 text-primary" />
-                            </div>
-                            <div>
-                              <p className="font-medium text-gray-900">Form {returnItem.return_type}</p>
-                              <p className="text-sm text-gray-500">
-                                Created {formatDate(returnItem.created_at)} • {returnItem.tax_name}
-                              </p>
-                            </div>
-                          </div>
-                          <Badge className={getStatusColor(returnItem.return_status)}>
-                            {returnItem.return_status}
-                          </Badge>
-                        </motion.div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500">No tax returns yet</p>
-                      <Button asChild className="mt-2">
-                        <Link href="/dashboard/returns">Create Your First Return</Link>
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+          <div className="text-xl sm:text-2xl font-bold text-white mt-4 pl-2">
+            {stats.totalReturns}
+          </div>
+        </div>
 
-            {/* Recent Activity */}
-            <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>Latest updates and changes</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <div className="flex justify-center items-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    </div>
-                  ) : error ? (
-                    <div className="text-center py-2">
-                      <Activity className="w-8 h-8 text-red-400 mx-auto mb-2" />
-                      <p className="text-sm text-red-500">Failed to load activities</p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={fetchActivityLogs}
-                        className="mt-1"
-                      >
-                        Retry
-                      </Button>
-                    </div>
-                  ) : recentActivity.length > 0 ? (
-                    <div className="space-y-2">
-                      {recentActivity.map((activity, index) => (
-                        <div key={activity.id || index} className="flex items-start gap-3">
-                          <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <Activity className="w-4 h-4 text-blue-600" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900">{activity.comment || "Activity update"}</p>
-                            <p className="text-xs text-gray-400 mt-1">
-                              {formatDate(activity.created_at || activity.timestamp)}
-                            </p>
-                          </div>
+        {/* Card 2 - Normal */}
+        <div className="w-full h-[142px] bg-[url('/Rectangle145211orange.svg')] bg-no-repeat bg-cover shadow-lg hover:shadow-xl transition-all duration-300 rounded-[6px] flex flex-col pt-4 pl-4 text-start">
+          <div className="flex items-center gap-2 text-white w-full">
+            <div className="w-1/6 min-w-[40px] border-b-2 pb-2 border-[#df530a]">
+              <div className="p-1 flex justify-center items-center rounded-full bg-[#df530a]">
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
+              </div>
+            </div>
+            <h3 className="text-xs sm:text-sm font-bold pb-2">Pending Returns</h3>
+          </div>
+          <div className="text-xl sm:text-2xl font-bold text-white mt-4 pl-2">{stats.pendingReturns}</div>
+        </div>
+
+        {/* Card 3 - Bottom Right Rounded */}
+        <div className="w-full h-[142px] bg-[url('/Rectangle145235blue.svg')] bg-no-repeat bg-cover shadow-lg hover:shadow-xl transition-all duration-300 rounded-tr-[6px] rounded-br-[30px] sm:rounded-br-[50px] rounded-tl-[6px] rounded-bl-[6px] flex flex-col pt-4 pl-4 text-start">
+          <div className="flex items-center gap-2 text-white">
+            <div className="w-1/6 min-w-[40px] border-b-2 pb-2 border-[#1d2587]">
+              <div className="p-1 flex justify-center items-center rounded-full bg-[#1d2587]">
+                <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
+              </div>
+            </div>
+            <h3 className="text-xs sm:text-sm font-bold pb-2">Outstanding Invoices</h3>
+          </div>
+          <div className="text-xl sm:text-2xl font-bold text-white mt-4 pl-2">{stats.unpaidInvoices}</div>
+        </div>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        {/* Recent Returns */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between px-4 sm:px-6">
+              <div>
+                <CardTitle className="text-lg sm:text-xl">Recent Tax Returns</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">Your 5 most recent tax return filings</CardDescription>
+              </div>
+              <Button variant="outline" size="sm" asChild className="hidden sm:flex">
+                <Link href="/dashboard/returns">
+                  View All
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent className="px-4 sm:px-6">
+              {loading ? (
+                <div className="flex justify-center items-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : returns.length > 0 ? (
+                <div className="space-y-3">
+                  {recentReturns.map((returnItem) => (
+                    <motion.div
+                      key={returnItem.return_id}
+                      whileHover={{ scale: 1.01 }}
+                      className="flex items-center justify-between p-3 sm:p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                         </div>
-                      ))}
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-gray-900 text-sm sm:text-base truncate">Form {returnItem.return_type}</p>
+                          <p className="text-xs text-gray-500 truncate">
+                            Created {formatDate(returnItem.created_at)} • {returnItem.tax_name}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge className={getStatusColor(returnItem.return_status) + " text-xs sm:text-sm"}>
+                        {returnItem.return_status}
+                      </Badge>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <FileText className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500 text-sm sm:text-base">No tax returns yet</p>
+                  <Button asChild className="mt-2 text-sm">
+                    <Link href="/dashboard/returns">Create Your First Return</Link>
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Activity */}
+        <div>
+          <Card>
+            <CardHeader className="px-4 sm:px-6">
+              <CardTitle className="text-lg sm:text-xl">Recent Activity</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">Latest updates and changes</CardDescription>
+            </CardHeader>
+            <CardContent className="px-4 sm:px-6">
+              {loading ? (
+                <div className="flex justify-center items-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : error ? (
+                <div className="text-center py-2">
+                  <Activity className="w-6 h-6 sm:w-8 sm:h-8 text-red-400 mx-auto mb-2" />
+                  <p className="text-xs sm:text-sm text-red-500">Failed to load activities</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchActivityLogs}
+                    className="mt-1 text-xs"
+                  >
+                    Retry
+                  </Button>
+                </div>
+              ) : recentActivity.length > 0 ? (
+                <div className="space-y-3">
+                  {recentActivity.map((activity, index) => (
+                    <div key={activity.id || index} className="flex items-start gap-3">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs sm:text-sm font-medium text-gray-900 break-words">{activity.comment || "Activity update"}</p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {formatDate(activity.created_at || activity.timestamp)}
+                        </p>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="text-center py-4">
-                      <Activity className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">No recent activity</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <Activity className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-xs sm:text-sm text-gray-500">No recent activity</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <h2 className="text-base sm:text-lg font-bold mb-4">Quick Actions</h2>
+        <div className="overflow-x-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 min-w-max w-full">
+            {/* New Tax Return */}
+            <Link
+              href="/dashboard/returns"
+              className="border rounded-md p-3 flex flex-col items-center gap-2 hover:bg-gray-50 transition min-w-[180px] sm:min-w-[200px]"
+            >
+              <FileText className="w-5 h-5 text-gray-700" />
+              <span className="text-sm font-medium text-center">New Tax Return</span>
+              <span className="text-xs text-gray-500 text-center">Start a new filing</span>
+            </Link>
+
+            {/* View Invoices */}
+            <Link
+              href="/dashboard/invoices"
+              className="border rounded-md p-3 flex flex-col items-center gap-2 hover:bg-gray-50 transition min-w-[180px] sm:min-w-[200px]"
+            >
+              <Activity className="w-5 h-5 text-gray-700" />
+              <span className="text-sm font-medium text-center">View Invoices</span>
+              <span className="text-xs text-gray-500 text-center">Check invoice status</span>
+            </Link>
+
+            {/* Payments */}
+            <Link
+              href="/dashboard/payments"
+              className="border rounded-md p-3 flex flex-col items-center gap-2 hover:bg-gray-50 transition min-w-[180px] sm:min-w-[200px]"
+            >
+              <CreditCard className="w-5 h-5 text-gray-700" />
+              <span className="text-sm font-medium text-center">Payments</span>
+              <span className="text-xs text-gray-500 text-center">Track all payments</span>
+            </Link>
           </div>
+        </div>
+      </div>
+    </motion.div>
+  </main>
 
-          {/* Quick Actions */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <h2 className="text-md font-bold mb-3">Quick Actions</h2>
-            <div className="">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 min-w-max">
-                {/* New Tax Return */}
-                <Link
-                  href="/dashboard/returns"
-                  className="border rounded-md p-3 flex flex-col items-center gap-1 hover:bg-gray-50 transition min-w-[200px]"
-                >
-                  <FileText className="w-5 h-5 text-gray-700" />
-                  <span className="text-sm font-medium">New Tax Return</span>
-                  <span className="text-xs text-gray-500">Start a new filing</span>
-                </Link>
-
-                {/* View Invoices */}
-                <Link
-                  href="/dashboard/invoices"
-                  className="border rounded-md p-3 flex flex-col items-center gap-1 hover:bg-gray-50 transition min-w-[200px]"
-                >
-                  <Activity className="w-5 h-5 text-gray-700" />
-                  <span className="text-sm font-medium">View Invoices</span>
-                  <span className="text-xs text-gray-500">Check invoice status</span>
-                </Link>
-
-                {/* Payments */}
-                <Link
-                  href="/dashboard/payments"
-                  className="border rounded-md p-3 flex flex-col items-center gap-1 hover:bg-gray-50 transition min-w-[200px]"
-                >
-                  <CreditCard className="w-5 h-5 text-gray-700" />
-                  <span className="text-sm font-medium">Payments</span>
-                  <span className="text-xs text-gray-500">Track all payments</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </main>
     )
   )
 }

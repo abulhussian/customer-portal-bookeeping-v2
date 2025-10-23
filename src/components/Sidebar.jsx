@@ -66,8 +66,8 @@ const Sidebar = ({ isOpen, setIsOpen, currentPath }) => {
   ]
 
   const bookkeepingItems = [
-    { name: "Chart of Accounts", href: "/dashboard/bookkeeping/chartofaccounts", icon: LayoutGrid, description: "Manage accounts" },
     { name: "Company Profile", href: "/dashboard/bookkeeping/companyprofile", icon: Building, description: "Company information" },
+    { name: "Chart of Accounts", href: "/dashboard/bookkeeping/chartofaccounts", icon: LayoutGrid, description: "Manage accounts" },
     { name: "Documents", href: "/dashboard/bookkeeping/documents", icon: Folder, description: "Manage documents" },
     { name: "Journal Entries", href: "/dashboard/bookkeeping/journalentries", icon: FileSpreadsheet, description: "Record transactions" },
     { name: "Reports", href: "/dashboard/bookkeeping/reports", icon: BarChart3, description: "View reports" }
