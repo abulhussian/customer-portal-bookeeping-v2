@@ -8,6 +8,7 @@ import { useFilterModal } from '@/src/components/DashboardLayout';
 import { toast } from "react-toastify"
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { HiArrowLeftCircle, HiArrowRightCircle } from "react-icons/hi2";
 
 export default function Payments() {
   const { isFilterModalOpen, setIsFilterModalOpen } = useFilterModal();
@@ -260,483 +261,521 @@ export default function Payments() {
   return (
     <motion.div className="pl-3 flex flex-col">
       <div className="max-h-[calc(100vh-50px)] overflow-y-auto">
+
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-4"
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.3 }}
+  className="mt-4"
+>
+  <div className="grid grid-cols-2 sm:grid-cols-4 xs:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    {statusOptions.map((status, index, arr) => {
+      // Count of items per status
+      const count =
+        status.value === "all"
+          ? payments.length
+          : payments.filter((p) => p.status === status.value).length;
+
+      // Icon mapping
+      const statusIcons = {
+        all: <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-white" />,
+        paid: <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-white" />,
+        pending: <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-white" />,
+      };
+
+      // Style and background mapping
+      const statusConfig = {
+        all: {
+          borderColor: "border-[#604881]",
+          iconBg: "bg-[#604881]",
+          checkmarkBg: "bg-[#604881]",
+          image: "/Rectangle145138.svg",
+          label: "Total Transactions",
+        },
+        paid: {
+          borderColor: "border-emerald-400",
+          iconBg: "bg-teal-600 bg-opacity-80",
+          checkmarkBg: "bg-teal-500",
+          image: "/Rectangle45212.svg",
+          label: "Paid",
+        },
+        pending: {
+          borderColor: "border-[#df530a]",
+          iconBg: "bg-[#df530a]",
+          checkmarkBg: "bg-[#df530a]",
+          image: "/Rectangle145211orange.svg",
+          label: "Pending",
+        },
+      };
+
+      const IconComponent = statusIcons[status.value] || <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-white" />;
+      const config = statusConfig[status.value] || {
+        borderColor: "border-gray-400",
+        iconBg: "bg-gray-600 bg-opacity-80",
+        checkmarkBg: "bg-gray-600",
+        image: "/Rectangle145138.svg",
+        label: status.label,
+      };
+
+      // Border radius logic
+      let extraRadius = "";
+      if (index === 0)
+        extraRadius = "rounded-tl-[30px] sm:rounded-tl-[50px] rounded-tr-[6px] rounded-br-[6px] rounded-bl-[6px]";
+      else if (index === arr.length - 1)
+        extraRadius = "rounded-tr-[6px] rounded-br-[30px] sm:rounded-br-[50px] rounded-tl-[6px] rounded-bl-[6px]";
+      else extraRadius = "rounded-[6px]";
+
+      return (
+        <motion.div
+          key={status.value}
+          whileHover={{ y: -4, scale: 1.02 }}
+          transition={{ duration: 0.2 }}
+          onClick={() =>
+            setFilterStatus(status.value === filterStatus ? "all" : status.value)
+          }
+          className={`relative w-full h-[142px] bg-no-repeat bg-cover shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col pt-4 pl-4 text-start ${extraRadius}`}
+          style={{ backgroundImage: `url(${config.image})` }}
         >
-          <div className="grid grid-cols-3 md:grid-cols-5 gap-5">
-            {statusOptions.map((status, index, arr) => {
-              const count = status.value === "all"
-                ? payments.length
-                : payments.filter((p) => p.status === status.value).length;
+          {/* Checkmark overlay when selected */}
+          {filterStatus === status.value && (
+            <div className="absolute -top-2 -right-2 z-20">
+              <div
+                className={`flex items-center justify-center rounded-full p-[6px] ${config.checkmarkBg}`}
+              >
+                <Check className="h-[18px] w-[18px] text-white" />
+              </div>
+            </div>
+          )}
 
-              const total = status.value === "all"
-                ? payments.reduce((sum, payment) => sum + payment.amount, 0)
-                : payments
-                    .filter((p) => p.status === status.value)
-                    .reduce((sum, payment) => sum + payment.amount, 0);
+          {/* Icon + label */}
+          <div className="flex items-center gap-2 text-white w-full">
+            <div className={`w-1/6 min-w-[40px] border-b-2 pb-2 ${config.borderColor}`}>
+              <div className={`p-1 flex justify-center items-center rounded-full ${config.iconBg}`}>
+                {IconComponent}
+              </div>
+            </div>
+            <h3 className="text-xs sm:text-sm font-bold pb-2">{config.label}</h3>
+          </div>
 
-              const statusIcons = {
-                all: <CreditCard className="h-5 w-5 text-white" />,
-                paid: <CheckCircle className="h-5 w-5 text-white" />,
-                pending: <Clock className="h-5 w-5 text-white" />,
-              };
-
-              const statusConfig = {
-                all: {
-                  borderColor: "border-purple-400",
-                  iconBg: "bg-purple-600 bg-opacity-80",
-                  checkmarkBg: "bg-purple-600",
-                  image: "/Rectangle145138.svg",
-                  label: "Total Transactions"
-                },
-                paid: {
-                  borderColor: "border-emerald-400",
-                  iconBg: "bg-teal-600 bg-opacity-80",
-                  checkmarkBg: "bg-teal-500",
-                  image: "/Rectangle45212.svg",
-                  label: "Paid"
-                },
-                pending: {
-                  borderColor: "border-amber-400",
-                  iconBg: "bg-amber-600 bg-opacity-80",
-                  checkmarkBg: "bg-amber-600",
-                  image: "/Rectangle145211orange.svg",
-                  label: "Pending"
-                },
-              };
-
-              const IconComponent = statusIcons[status.value] || <CreditCard className="h-5 w-5 text-white" />;
-              const config = statusConfig[status.value] || {
-                borderColor: "border-gray-400",
-                iconBg: "bg-gray-600 bg-opacity-80",
-                checkmarkBg: "bg-gray-600",
-                image: "/Rectangle145138.svg",
-                label: status.label
-              };
-
-              let extraRadius = "";
-              if (index === 0) extraRadius = "rounded-tl-2xl";
-              if (index === arr.length - 1) extraRadius = "rounded-br-2xl";
-
-              return (
-                <motion.div
-                  key={status.value}
-                  whileHover={{ y: -4, scale: 1.02 }}
-                  transition={{ duration: 0.2 }}
-                  onClick={() =>
-                    setFilterStatus(status.value === filterStatus ? "all" : status.value)
-                  }
-                  className={`relative w-[234px] h-[142px] border-opacity-20 transition-all cursor-pointer mt-2 ${extraRadius}`}
-                >
-                  <div className="absolute inset-0 z-0 flex justify-center items-center">
-                    <img
-                      src={config.image}
-                      alt={`${status.label} background`}
-                      className="w-[234px] h-[142px] object-cover"
-                    />
-                    {filterStatus === status.value && (
-                      <div className="absolute inset-0 bg-opacity-40"></div>
-                    )}
-                  </div>
-
-                  <div className="relative z-10 w-[234px] h-[142px] p-3 flex flex-col justify-between">
-                    {filterStatus === status.value && (
-                      <div className="absolute -top-2 -right-2 z-20">
-                        <div
-                          className={`flex items-center justify-center rounded-full p-[6px] ${config.checkmarkBg}`}
-                        >
-                          <Check className="h-[18px] w-[18px] text-white" />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-5 mb-1">
-                      <div
-                        className={`flex items-center justify-center w-1/6 border-b-2 pb-2 ${config.borderColor}`}
-                      >
-                        <div
-                          className={`p-2 rounded-full ${config.iconBg} flex items-center justify-center`}
-                        >
-                          {IconComponent}
-                        </div>
-                      </div>
-
-                      <h3 className="text-sm font-medium uppercase leading-[18px] font-inter mb-1 text-white">
-                        {config.label}
-                      </h3>
-                    </div>
-
-                    <div className="text-[18px] leading-[38px] font-bold font-inter pl-2 text-white">
-                      {count}
-                    </div>
-
-                    
-                  </div>
-                </motion.div>
-              );
-            })}
+          {/* Count */}
+          <div className="text-xl sm:text-2xl font-bold text-white mt-4 pl-2">
+            {count}
           </div>
         </motion.div>
+      );
+    })}
+  </div>
+</motion.div>
 
         {/* Filters */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white p-1 mt-2"
-        >
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-            <div className="w-full">
-              <div className="relative flex flex-col border border-gray-100 p-1 md:flex-row items-center gap-3 w-full">
-                <div className="relative flex-1 bg-left-top opacity-100">
-                  {!isSearchActive && (
-                    <img
-                      src="/searchsvg-1.svg"
-                      alt="search-icon"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-[42px] h-[42px] cursor-pointer"
-                      onClick={() => setIsSearchActive(true)}
-                    />
-                  )}
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.1 }}
+  className="bg-white p-2 mt-2 overflow-hidden rounded-lg shadow-sm border"
+>
+  <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+    {/* Search Input */}
+    <div className="w-full">
+      <div className="relative flex flex-row border border-gray-300 p-2 items-center gap-3 w-full rounded-md">
+        {/* Search Wrapper */}
+        <div className="relative flex-1 min-h-[48px] flex items-center">
+          {/* Big Search Icon */}
+          {!isSearchActive && (
+            <img
+              src="/searchsvg-1.svg"
+              alt="search-icon"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer z-10"
+              onClick={() => setIsSearchActive(true)}
+            />
+          )}
 
-                  {isSearchActive && (
-                    <>
-                      <img
-                        src="/search-icon-2.svg"
-                        alt="search-icon"
-                        className="w-[17px] h-[17px] absolute left-4 top-3"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Search payments by ID, customer, amount, or status..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-10 py-2 w-full rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      <button
-                        onClick={() => setIsSearchActive(false)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </>
-                  )}
-                </div>
+          {/* Active Search */}
+          {isSearchActive && (
+            <>
+              <img
+                src="/search-icon-2.svg"
+                alt="search-icon"
+                className="w-[17px] h-[17px] absolute left-3 top-1/2 -translate-y-1/2 z-10"
+              />
+              <input
+                type="text"
+                placeholder="Search payments by ID, customer, amount, or status..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-10 py-2 w-full rounded-md border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              />
+              <button
+                onClick={() => setIsSearchActive(false)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 z-10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </>
+          )}
+        </div>
 
-                {!isSearchActive && (
-                  <button
-                    onClick={handleOpenFilterModal}
-                    className="flex items-center gap-2 w-[123px] h-[42px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-tl-0 rounded-tr-[8px] rounded-bl-[8px] rounded-br-[8px] opacity-100 transition-colors hover:bg-gray-200 relative px-4 py-2"
-                  >
-                    <img src="/filter-icon.png" alt="filter icon" className="w-[22px] h-[22px]" />
-                    <span className="hidden sm:inline text-gray-700 text-sm">Filters</span>
-                  </button>
-                )}
-              </div>
+        {/* Filter Button */}
+        {!isSearchActive && (
+          <button
+            onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
+            className="flex items-center justify-center gap-2 w-[120px] h-[42px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-lg transition-colors hover:bg-gray-200 relative px-3 py-2"
+          >
+            <img src="/filter-icon.png" alt="filter icon" className="w-[20px] h-[20px]" />
+            <span className="hidden sm:inline text-gray-700 text-sm font-medium">Filters</span>
+          </button>
+        )}
+      </div>
 
-              {/* Active Filters Display */}
-              {!isSearchActive && (filterStatus !== "all" || dateFilter) && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  <div className="pr-1 border-r-2 pl-2">
-                    <h1 className="w-[80px] h-[15px] text-[#9398A5] text-left font-medium text-[12px] leading-[14px] tracking-[0px] opacity-100 font-inter">
-                      Applied Filters
-                    </h1>
-                    <button
-                      onClick={clearAllFilters}
-                      className="w-[56px] h-[17px] text-[#FC6719] text-left font-medium text-[14px] leading-[14px] tracking-[0px] opacity-100 font-inter transition-colors hover:text-[#E65C00]"
-                    >
-                      Clear all
-                    </button>
-                  </div>
-                  
-                  {filterStatus && filterStatus !== "all" && (
-                    <div className="mt-2 w-[172px] h-[46px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[6px] opacity-100 px-3 py-1 flex items-center justify-between relative">
-                      <div className="flex flex-col justify-center">
-                        <span className="w-[46px] h-[12px] text-[#9398A5] text-left font-medium text-[10px] leading-[14px] tracking-[1.5px] uppercase opacity-100 font-inter">
-                          Status:
-                        </span>
-                        <span className="w-[25px] h-[15px] text-[#3B444D] text-left font-medium text-[12px] leading-[14px] tracking-[0px] capitalize opacity-100 font-inter">
-                          {statusOptions.find(opt => opt.value === filterStatus)?.label}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => setFilterStatus('all')}
-                        className="absolute -right-2 top-0 -translate-y-1/2 bg-[#E4E3F1] border border-[#E4E3F1] rounded-full h-5 w-5 flex items-center justify-center opacity-100 hover:bg-[#dcdbe1]"
-                      >
-                        <img src="/cancel-btn.svg" alt="cancel-btn" className="w-[19px] h-[19px]" />
-                      </button>
-                    </div>
-                  )}
-                  
-                  {dateFilter && (
-                    <div className="mt-2 w-[172px] h-[46px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[6px] opacity-100 px-3 py-1 flex items-center justify-between relative">
-                      <div className="flex flex-col justify-center">
-                        <span className="w-[46px] h-[12px] text-[#9398A5] text-left font-medium text-[10px] leading-[14px] tracking-[1.5px] uppercase opacity-100 font-inter">
-                          Date:
-                        </span>
-                        <span className="w-auto h-[15px] text-[#3B444D] text-left font-medium text-[12px] leading-[14px] tracking-[0px] capitalize opacity-100 font-inter">
-                          {formatDateForDisplay(dateFilter)}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => setDateFilter(null)}
-                        className="absolute -right-2 top-0 -translate-y-1/2 bg-[#E4E3F1] border border-[#E4E3F1] rounded-full h-5 w-5 flex items-center justify-center opacity-100 hover:bg-[#dcdbe1]"
-                      >
-                        <img src="/cancel-btn.svg" alt="cancel-btn" className="w-[19px] h-[19px]" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+      {/* Active Filters Display */}
+      {!isSearchActive && (filterStatus !== "all" || dateFilter) && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          <div className="pr-2 border-r-2 pl-2 flex items-center gap-2">
+            <h1 className="text-[#9398A5] text-left font-medium text-[12px] leading-[14px] font-inter">
+              Applied Filters
+            </h1>
+            <button
+              onClick={clearAllFilters}
+              className="text-[#FC6719] font-medium text-[13px] leading-[14px] font-inter transition-colors hover:text-[#E65C00]"
+            >
+              Clear all
+            </button>
           </div>
 
-          {/* Filter Modal */}
-          {isFilterModalOpen && (
-            <div className="fixed inset-0 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
+          {/* Status Filter Tag */}
+          {filterStatus && filterStatus !== "all" && (
+            <div className="mt-2 w-[172px] h-[46px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[6px] px-3 py-1 flex items-center justify-between relative">
+              <div className="flex flex-col justify-center">
+                <span className="text-[#9398A5] font-medium text-[10px] uppercase font-inter">
+                  Status:
+                </span>
+                <span className="text-[#3B444D] font-medium text-[12px] capitalize font-inter">
+                  {statusOptions.find(opt => opt.value === filterStatus)?.label}
+                </span>
+              </div>
+              <button
+                onClick={() => setFilterStatus("all")}
+                className="absolute -right-2 top-0 -translate-y-1/2 bg-[#E4E3F1] rounded-full h-5 w-5 flex items-center justify-center hover:bg-[#dcdbe1]"
               >
-                <div className="relative flex items-center justify-center mb-4">
-                  <h3 className="text-[#191616] font-medium text-[24px] leading-[29px] capitalize">
-                    Filters
-                  </h3>
-                  <button
-                    onClick={() => setIsFilterModalOpen(false)}
-                    className="absolute top-1 right-1 flex justify-center items-center bg-[#F5F5FA] rounded-full w-[30px] h-[30px] hover:text-gray-600 transition-colors"
-                  >
-                    <img src="/cancel-filter.svg" alt="cancel-img" className="h-[12px] w-[12px]" />
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="relative">
-                    <label className="text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
-                    <select
-                      value={tempFilterStatus}
-                      onChange={(e) => setTempFilterStatus(e.target.value)}
-                      className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 pr-8 appearance-none focus:white focus:ring-blue-500 focus:border-blue-500 text-[#A8ACB7]"
-                    >
-                      {statusOptions.map((status) => (
-                        <option key={status.value} value={status.value}>
-                          {status.label}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute right-1 top-10 w-[14px] h-[8px] bg-[#A7ACB7] opacity-100 clip-path-triangle"></div>
-                  </div>
-
-                  <div className="relative">
-                    <label className="block text-sm text-[#3B444D] font-medium mb-1">
-                      Date
-                    </label>
-                    <DatePicker
-                      selected={tempDateFilter}
-                      onChange={(date) => setTempDateFilter(date)}
-                      dateFormat="dd/MM/yyyy"
-                      placeholderText="Select date"
-                      className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 pr-8 text-[#A8ACB7] focus:outline-none focus:bg-[#FFE5D8] focus:ring-[#575DD5] appearance-none"
-                      calendarClassName="shadow-lg border border-gray-200 rounded-lg"
-                    />
-                    <div className="pointer-events-none absolute left-54 top-10 w-[14px] h-[8px] bg-[#A7ACB7] opacity-100 clip-path-triangle"></div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex justify-end space-x-3">
-                  <button
-                    onClick={() => {
-                      setTempFilterStatus("all");
-                      setTempDateFilter(null);
-                      setIsFilterModalOpen(false);
-                    }}
-                    className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
-                  >
-                    Clear All
-                  </button>
-                  <button
-                    onClick={applyFilters}
-                    className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
-                  >
-                    Apply Filters
-                  </button>
-                </div>
-              </motion.div>
+                <img src="/cancel-btn.svg" alt="cancel-btn" className="w-[19px] h-[19px]" />
+              </button>
             </div>
           )}
-        </motion.div>
+
+          {/* Date Filter Tag */}
+          {dateFilter && (
+            <div className="mt-2 w-[172px] h-[46px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[6px] px-3 py-1 flex items-center justify-between relative">
+              <div className="flex flex-col justify-center">
+                <span className="text-[#9398A5] font-medium text-[10px] uppercase font-inter">
+                  Date:
+                </span>
+                <span className="text-[#3B444D] font-medium text-[12px] capitalize font-inter">
+                  {formatDateForDisplay(dateFilter)}
+                </span>
+              </div>
+              <button
+                onClick={() => setDateFilter(null)}
+                className="absolute -right-2 top-0 -translate-y-1/2 bg-[#E4E3F1] rounded-full h-5 w-5 flex items-center justify-center hover:bg-[#dcdbe1]"
+              >
+                <img src="/cancel-btn.svg" alt="cancel-btn" className="w-[19px] h-[19px]" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+
+  {/* Filter Modal */}
+  {isFilterModalOpen && (
+    <div className="fixed inset-0 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
+      >
+        <div className="relative flex items-center justify-center mb-4">
+          <h3 className="text-[#191616] font-medium text-[24px] leading-[29px] capitalize">
+            Filters
+          </h3>
+          <button
+            onClick={() => setIsFilterModalOpen(false)}
+            className="absolute top-1 right-1 flex justify-center items-center bg-[#F5F5FA] rounded-full w-[30px] h-[30px] hover:text-gray-600 transition-colors"
+          >
+            <img src="/cancel-filter.svg" alt="cancel-img" className="h-[12px] w-[12px]" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {/* Status Filter */}
+          <div className="relative">
+            <label className="text-sm font-medium text-gray-700 mb-2 block">
+              Filter by Status
+            </label>
+            <select
+              value={tempFilterStatus}
+              onChange={(e) => setTempFilterStatus(e.target.value)}
+              className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 pr-8 text-[#3B444D] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {statusOptions.map((status) => (
+                <option key={status.value} value={status.value}  >
+                  {status.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Date Filter */}
+          <div className="relative">
+            <label className="block text-sm text-[#3B444D] font-medium mb-1 ">Date</label>
+            <DatePicker
+              selected={tempDateFilter}
+              onChange={(date) => setTempDateFilter(date)}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="Select date"
+              className="w-full bg-[#F7F8FC]  rounded-md px-3 py-2 pr-8  focus:outline-none focus:bg-[#FFE5D8] focus:ring-blue-500"
+              calendarClassName="shadow-lg border border-gray-200 rounded-lg"
+            />
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end space-x-3">
+          <button
+            onClick={() => {
+              setTempFilterStatus("all");
+              setTempDateFilter(null);
+              setIsFilterModalOpen(false);
+            }}
+            className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
+          >
+            Clear All
+          </button>
+          <button
+            onClick={applyFilters}
+            className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  )}
+</motion.div>
+
+
+
 
         {/* Payments Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white rounded-lg shadow-sm border overflow-hidden mt-4"
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.2 }}
+  className="bg-white rounded-lg shadow-sm border overflow-hidden my-6"
+>
+  <div className="overflow-x-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#cbd5e1 transparent" }}>
+    {filteredPayments.length === 0 ? (
+      <div className="p-8 sm:p-12 text-center">
+        <div className="text-4xl sm:text-6xl mb-4">💳</div>
+        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No Payments Found</h3>
+        <p className="text-sm sm:text-base text-gray-600 max-w-md mx-auto">
+          {searchTerm
+            ? "Try adjusting your search criteria."
+            : filterStatus !== "all" && dateFilter
+            ? `No ${filterStatus.toLowerCase()} payments found for the selected date.`
+            : filterStatus !== "all"
+            ? `No ${filterStatus.toLowerCase()} payments found.`
+            : dateFilter
+            ? "No payments found for the selected date."
+            : "No payments available."}
+        </p>
+      </div>
+    ) : (
+      <div className="min-w-[800px]">
+        <table className="w-full divide-y divide-gray-200">
+          <thead className="bg-[#F6F5FA] rounded-[10px] opacity-100 h-[50px] sticky top-0 z-10">
+            <tr>
+              {[
+                "SN.NO",
+                "Transaction ID",
+                "Customer",
+                "Amount",
+                "Method",
+                "Status",
+                "Date",
+                "Description",
+              ].map((header) => (
+                <th
+                  key={header}
+                  className="text-left text-[12px] leading-[20px] font-medium text-[#3B444D] px-4 py-3 uppercase tracking-wider align-middle whitespace-nowrap"
+                >
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+
+          <tbody className="bg-white divide-y divide-gray-200">
+            {currentRows.map((payment, index) => (
+              <motion.tr
+                key={payment.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.05 }}
+                onClick={() => setSelectedRowId(payment.id)}
+                className={`h-[61px] bg-white rounded-[8px] opacity-100 transition-all cursor-pointer ${
+                  selectedRowId === payment.id
+                    ? "bg-indigo-50 shadow-lg"
+                    : "hover:bg-gray-50 hover:shadow-md"
+                }`}
+              >
+                {/* SN.NO */}
+                <td className="text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-4 py-3 whitespace-nowrap">
+                  {indexOfFirstRow + index + 1}
+                </td>
+
+                {/* Transaction ID */}
+                <td className="px-2 py-3 text-left whitespace-nowrap">
+                  <div className="text-sm text-gray-900">{payment.transactionId}</div>
+                  <div className="text-xs text-gray-500">ID: {payment.id}</div>
+                </td>
+
+                {/* Customer */}
+                <td className="px-4 py-3 text-left whitespace-nowrap">
+                  <div className="text-sm text-gray-900">{payment.customerName}</div>
+                  <div className="text-xs text-gray-500">ID: {payment.customerId}</div>
+                </td>
+
+                {/* Amount */}
+                <td className="px-4 py-3 text-left whitespace-nowrap">
+                  <span className="w-auto font-inter font-bold text-[14px] leading-[16px] text-[#191616] opacity-100">
+                    {formatCurrency(payment.amount)}
+                  </span>
+                </td>
+
+                {/* Method */}
+                <td className="px-4 py-3 text-left whitespace-nowrap">
+                  <span className="text-sm text-gray-900">{payment.method}</span>
+                </td>
+
+                {/* Status */}
+                <td className="px-4 py-3 text-left whitespace-nowrap">
+                  <span
+                    className={`inline-flex justify-center items-center w-[84px] h-[24px] rounded-[6px] text-white text-xs uppercase font-semibold opacity-100 ${getStatusColor(
+                      payment.status
+                    )}`}
+                  >
+                    {payment.status}
+                  </span>
+                </td>
+
+                {/* Date */}
+                <td className="px-4 py-3 text-left whitespace-nowrap text-[12px] leading-[16px] text-[#191616] font-inter">
+                  {formatDate(payment.createdAt)}
+                </td>
+
+                {/* Description */}
+                <td className="px-4 py-3 text-left whitespace-nowrap">
+                  <span className="text-sm text-gray-900">{payment.description}</span>
+                </td>
+              </motion.tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+
+    {/* Pagination */}
+    {filteredPayments.length > 0 && (
+  <div className="h-[55px] w-full bg-[#F5F5FA] rounded-[10px] opacity-100 px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 sticky bottom-0 z-10 pr-3">
+    <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+      <div>
+        <p className="text-sm text-gray-700">
+          Showing <span className="font-medium">{indexOfFirstRow + 1}</span> to{" "}
+          <span className="font-medium">{Math.min(indexOfLastRow, filteredPayments.length)}</span> of{" "}
+          <span className="font-medium">{filteredPayments.length}</span> results
+        </p>
+      </div>
+
+      <div>
+        <nav
+          className="flex items-center space-x-2 w-[258px] h-[40px] bg-[#FAFAFC] border border-[#EEEFF2] rounded-[6px]"
+          aria-label="Pagination"
         >
-          <div style={{ scrollbarWidth: "thin", scrollbarColor: "#cbd5e1 transparent" }}>
-            {filteredPayments.length === 0 ? (
-              <div className="p-12 text-center">
-                <div className="text-6xl mb-4">💳</div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Payments Found</h3>
-                <p className="text-gray-600">
-                  {searchTerm
-                    ? "Try adjusting your search criteria."
-                    : filterStatus !== "all" && dateFilter
-                    ? `No ${filterStatus} payments found for the selected date.`
-                    : filterStatus !== "all"
-                    ? `No ${filterStatus} payments found.`
-                    : dateFilter
-                    ? "No payments found for the selected date."
-                    : "No payments available."}
-                </p>
-              </div>
-            ) : (
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-[#F6F5FA] rounded-[10px] opacity-100 h-[50px] sticky top-0 z-10">
-                  <tr>
-                    {[
-                      "SN.NO",
-                      "Transaction ID",
-                      "Customer",
-                      "Amount",
-                      "Method",
-                      "Status",
-                      "Date",
-                      "Description",
-                    ].map((header) => (
-                      <th
-                        key={header}
-                        className="text-left text-[12px] leading-[20px] font-medium text-[#3B444D] px-4 py-3 uppercase tracking-wider align-middle"
-                      >
-                        {header}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
+          {/* Previous Button */}
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className={`flex items-center gap-1 px-3 py-1 text-sm rounded-[4px] transition-colors border-r-4 border-gray-200 pr-2 
+              ${currentPage === 1
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+              }`}
+          >
+            <span className={`flex items-center justify-center h-[14px] w-[14px] rounded 
+              ${currentPage === 1 ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
+              <HiArrowLeftCircle className={`h-[10px] w-[10px] text-white ${currentPage === 1 ? "text-gray-500" : "text-white"}`} />
+            </span>
+            <span className={`text-[12px] leading-[16px] font-bold ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F]"} w-[28px] h-[15px] text-center opacity-100`}>
+              Prev
+            </span>
+          </button>
 
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {currentRows.map((payment, index) => (
-                    <motion.tr
-                      key={payment.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      onClick={() => setSelectedRowId(payment.id)}
-                      className={`h-[61px] bg-white rounded-[8px] opacity-100 transition-all cursor-pointer ${
-                        selectedRowId === payment.id
-                          ? "bg-indigo-50 shadow-lg"
-                          : "hover:bg-gray-50 hover:shadow-md"
-                      }`}
-                    >
-                      {/* SN.NO */}
-                      <td className="text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-4 py-3">
-                        {indexOfFirstRow + index + 1}
-                      </td>
+          {/* Page Numbers */}
+          {(() => {
+            const totalPages = Math.ceil(filteredPayments.length / 10)
+            const visiblePages = 5
+            let startPage = Math.max(1, currentPage - 2)
+            let endPage = Math.min(totalPages, startPage + visiblePages - 1)
+            if (endPage - startPage < visiblePages - 1) {
+              startPage = Math.max(1, endPage - visiblePages + 1)
+            }
+            return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
+              (page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-[32px] h-[33px] text-sm rounded-[4px] flex items-center justify-center 
+                    ${currentPage === page
+                      ? "bg-[#3F058F] text-white font-semibold"
+                      : "bg-white text-[#191616] hover:bg-gray-100"
+                    }`}
+                >
+                  {page}
+                </button>
+              )
+            )
+          })()}
 
-                      {/* Transaction ID */}
-                      <td className="px-2 py-3 text-left">
-                        <div className="text-sm text-gray-900">{payment.transactionId}</div>
-                        <div className="text-xs text-gray-500">ID: {payment.id}</div>
-                      </td>
+          {/* Next Button */}
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(filteredPayments.length / 10)))
+            }
+            disabled={currentPage === Math.ceil(filteredPayments.length / 10)}
+            className={`flex items-center gap-1 px-3 py-1 text-sm rounded-[4px] transition-colors border-l-4 border-gray-200 pl-2
+              ${currentPage === Math.ceil(filteredPayments.length / 10)
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+              }`}
+          >
+            <span className={`text-[12px] leading-[16px] font-bold w-[28px] h-[15px] text-center 
+              ${currentPage === Math.ceil(filteredPayments.length / 10) ? "text-gray-400" : "text-[#3F058F]"} opacity-100`}>
+              Next
+            </span>
+            <span className={`flex items-center justify-center h-[14px] w-[14px] rounded 
+              ${currentPage === Math.ceil(filteredPayments.length / 10) ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
+              <HiArrowRightCircle className={`h-[10px] w-[10px] ${currentPage === Math.ceil(filteredPayments.length / 10) ? "text-gray-500" : "text-white"}`} />
+            </span>
+          </button>
+        </nav>
+      </div>
+    </div>
+  </div>
+)}
 
-                      {/* Customer */}
-                      <td className="px-4 py-3 text-left">
-                        <div className="text-sm text-gray-900">{payment.customerName}</div>
-                        <div className="text-xs text-gray-500">ID: {payment.customerId}</div>
-                      </td>
+  </div>
+</motion.div>
 
-                      {/* Amount */}
-                      <td className="px-4 py-3 text-left">
-                        <div className="flex justify-start items-center">
-                          <span className="w-auto font-inter font-bold text-[14px] leading-[16px] text-[#191616] opacity-100">
-                            {formatCurrency(payment.amount)}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Method */}
-                      <td className="px-4 py-3 text-left">
-                        <span className="text-sm text-gray-900">{payment.method}</span>
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-4 py-3 text-left">
-                        <span
-                          className={`inline-flex justify-center items-center w-[84px] h-[24px] rounded-[6px] text-white text-xs uppercase font-semibold opacity-100 ${getStatusColor(
-                            payment.status
-                          )}`}
-                        >
-                          {payment.status}
-                        </span>
-                      </td>
-
-                      {/* Date */}
-                      <td className="px-4 py-3 w-[75px] h-[15px] text-left font-inter font-normal text-[12px] leading-[16px] text-[#191616] opacity-100">
-                        <span>{formatDate(payment.createdAt)}</span>
-                      </td>
-
-                      {/* Description */}
-                      <td className="px-4 py-3 text-left">
-                        <span className="text-sm text-gray-900">{payment.description}</span>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-
-            {/* Pagination */}
-            {filteredPayments.length > 0 && (
-              <div className="h-[55px] w-full bg-[#F5F5FA] rounded-[10px] opacity-100 px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 sticky bottom-0 z-10">
-                <p className="text-sm text-gray-600">
-                  Showing {indexOfFirstRow + 1} to {Math.min(indexOfLastRow, filteredPayments.length)} of{" "}
-                  {filteredPayments.length} results
-                </p>
-
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="flex items-center gap-1 px-3 py-1 text-sm border rounded-md 
-                      bg-white text-gray-700 hover:bg-gray-100 
-                      disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    Previous
-                  </button>
-
-                  {Array.from({ length: totalPages }, (_, i) => (
-                    <button
-                      key={i + 1}
-                      onClick={() => setCurrentPage(i + 1)}
-                      className={`px-3 py-1 text-sm border rounded-md transition-colors 
-                        ${currentPage === i + 1
-                          ? "bg-[#3F058F] text-white border-[#3F058F]"
-                          : "bg-white text-gray-700 hover:bg-gray-100"
-                        }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-
-                  <button
-                    onClick={() => setCurrentPage((prev) => prev + 1)}
-                    disabled={currentPage >= totalPages}
-                    className="flex items-center gap-1 px-3 py-1 text-sm border rounded-md 
-                      bg-white text-gray-700 hover:bg-gray-100 
-                      disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </motion.div>
       </div>
     </motion.div>
   );

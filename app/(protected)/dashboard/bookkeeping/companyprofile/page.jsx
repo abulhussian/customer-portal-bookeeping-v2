@@ -30,9 +30,9 @@ export default function CompanyProfile() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 max-h-[calc(100vh-50px)] overflow-y-auto space-y-6">
+    <div className="max-w-7xl mx-auto p-6 max-h-[calc(100vh-50px)] overflow-y-auto space-y-6">
       <div>
-        <h2 className="text-3xl font-bold text-gray-900">Company Profile</h2>
+        <h2 className="text-lg font-bold text-gray-900">Company Profile</h2>
         <p className="text-gray-600 mt-2">
           Manage your company information and settings
         </p>
@@ -58,7 +58,7 @@ export default function CompanyProfile() {
                   value={formData.companyName}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2  bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                 />
               </div>
               <div className="space-y-2">
@@ -70,7 +70,7 @@ export default function CompanyProfile() {
                   name="registrationNumber"
                   value={formData.registrationNumber}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2  bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                 />
               </div>
             </div>
@@ -85,7 +85,7 @@ export default function CompanyProfile() {
                   name="taxId"
                   value={formData.taxId}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900  focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                 />
               </div>
               <div className="space-y-2">
@@ -98,7 +98,7 @@ export default function CompanyProfile() {
                   value={formData.fiscalYearEnd}
                   onChange={handleChange}
                   placeholder="12-31"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                 />
               </div>
             </div>
@@ -112,7 +112,7 @@ export default function CompanyProfile() {
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
               />
             </div>
 
@@ -126,7 +126,7 @@ export default function CompanyProfile() {
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                 />
               </div>
               <div className="space-y-2">
@@ -138,7 +138,7 @@ export default function CompanyProfile() {
                   name="state"
                   value={formData.state}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                 />
               </div>
               <div className="space-y-2">
@@ -150,7 +150,7 @@ export default function CompanyProfile() {
                   name="zipCode"
                   value={formData.zipCode}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                 />
               </div>
             </div>
@@ -164,7 +164,7 @@ export default function CompanyProfile() {
                 name="country"
                 value={formData.country}
                 onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
               />
             </div>
 
@@ -179,7 +179,7 @@ export default function CompanyProfile() {
                   value={formData.phone}
                   onChange={handleChange}
                   type="tel"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 "
                 />
               </div>
               <div className="space-y-2">
@@ -192,7 +192,7 @@ export default function CompanyProfile() {
                   value={formData.email}
                   onChange={handleChange}
                   type="email"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 "
                 />
               </div>
             </div>
@@ -207,7 +207,7 @@ export default function CompanyProfile() {
                 value={formData.website}
                 onChange={handleChange}
                 type="url"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
               />
             </div>
 
@@ -222,7 +222,7 @@ export default function CompanyProfile() {
                 onChange={handleChange}
                 rows={4}
                 placeholder="Any additional information about your company..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
               />
             </div>
 
