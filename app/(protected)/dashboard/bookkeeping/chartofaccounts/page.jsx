@@ -2,11 +2,13 @@
 import { useState } from "react";
 import { Plus, Edit, Trash2, X, FileText, Eye, MoreVertical } from "lucide-react";
 import { HiArrowLeftCircle, HiArrowRightCircle } from "react-icons/hi2";
+import { useFilterModal } from "@/src/components/DashboardLayout";
 
 export default function ChartOfAccounts() {
+    const { isFilterModalOpen, setIsFilterModalOpen } = useFilterModal();
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [typeFilter, setTypeFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [tempTypeFilter, setTempTypeFilter] = useState('all');
@@ -107,7 +109,7 @@ export default function ChartOfAccounts() {
   );
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto overflow-y-auto max-h-[calc(100vh-50px)]">
+    <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto overflow-y-auto max-h-[calc(100vh)] pb-24 sm:pb-8">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg sm:text-xl font-bold text-gray-900">Chart of Accounts</h2>
@@ -327,202 +329,206 @@ export default function ChartOfAccounts() {
       )}
 
       {/* Accounts Table */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <div className="min-h-[400px] overflow-x-auto">
-          {currentItems.length === 0 ? (
-            <div className="p-8 sm:p-12 text-center">
-              <div className="text-4xl sm:text-6xl mb-4">📝</div>
-              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No Accounts Found</h3>
-              <p className="text-gray-600 text-sm sm:text-base">
-                {searchTerm || typeFilter !== "all" || categoryFilter !== "all"
-                  ? "Try adjusting your search or filter criteria."
-                  : "No accounts available."}
-              </p>
-            </div>
-          ) : (
-            <>
-              <table className="min-w-full divide-y divide-gray-200 text-center">
-                <thead className="w-full h-[50px] bg-[#F6F5FA] rounded-[10px] opacity-100 sticky top-0">
-                  <tr>
-                    <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3">
-                      ACCOUNT #
-                    </th>
-                    <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3">
-                      ACCOUNT NAME
-                    </th>
-                    <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3">
-                      DOCUMENTS
-                    </th>
-                    <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3">
-                      TYPE
-                    </th>
-                    <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3">
-                      CATEGORY
-                    </th>
-                    <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3">
-                      BALANCE
-                    </th>
-                    <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3">
-                      ACTIONS
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody className="bg-white divide-y divide-gray-200 text-center">
-                  {currentItems.map((account, index) => (
-                    <tr
-                      key={account.id}
-                      onClick={() => handleRowClick(account.id)}
-                      className={`h-[61px] bg-white rounded-[8px] opacity-100 transition-all cursor-pointer 
-                        ${selectedRowId === account.id
-                          ? "bg-purple-100 shadow-lg"
-                          : "hover:shadow-md hover:bg-gray-100"
-                        }`}
-                    >
-                      <td className="text-[10px] sm:text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-3 sm:px-4 py-3">
-                        {account.id}
-                      </td>
-
-                      <td className="px-2 sm:px-2 py-3 text-left text-[12px] sm:text-[14px] leading-[16px] font-bold text-[#191616] opacity-100">
-                        {account.name}
-                      </td>
-
-                      <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap">
-                        <div className="flex justify-start items-center">
-                          <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 mr-1 sm:mr-2" />
-                          <span className="text-xs sm:text-sm text-gray-900">{account.documentCount} files</span>
-                        </div>
-                      </td>
-
-                      <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap">
-                        <span
-                          className={`inline-flex justify-center items-center w-[70px] sm:w-[80px] h-[20px] sm:h-[24px] rounded-[6px] ${getStatusColor(account.type)} text-white text-[8px] sm:text-xs uppercase font-bold opacity-100`}
-                        >
-                          <span className="text-white text-[8px] sm:text-[10px] leading-[12px] font-semibold font-inter tracking-[1px] sm:tracking-[2px] uppercase text-center">{account.type}</span>
-                        </span>
-                      </td>
-
-                      <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-xs sm:text-sm text-gray-900">
-                        {account.category}
-                      </td>
-
-                      <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-[10px] sm:text-[12px] leading-[16px] font-normal text-[#191616] opacity-100">
-                        {account.balance}
-                      </td>
-
-                      <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap">
-                        <div className="flex justify-center items-center space-x-1 sm:space-x-2">
-                          <button className="text-blue-600 hover:text-blue-700 transition-colors" title="View Details">
-                            <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-                          </button>
-                          <button className="text-gray-600 hover:text-gray-700 transition-colors">
-                            <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                          </button>
-                          <button className="text-gray-600 hover:text-red-700 transition-colors">
-                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                          </button>
-                          <button className="md:hidden text-gray-600 hover:text-gray-700 transition-colors">
-                            <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              {/* Pagination Controls */}
-              <div className="h-auto sm:h-[55px] w-full bg-[#F5F5FA] rounded-[10px] opacity-100 px-3 sm:px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 sticky bottom-0 z-10">
-                <div className="flex flex-col sm:flex-row sm:flex-1 sm:items-center sm:justify-between gap-3 sm:gap-0 w-full">
-                  <div className="text-center sm:text-left">
-                    <p className="text-xs sm:text-sm text-gray-700">
-                      Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
-                      <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredAccounts.length)}</span> of{' '}
-                      <span className="font-medium">{filteredAccounts.length}</span> results
-                    </p>
-                  </div>
-                  <div className="w-full sm:w-auto">
-                    <nav
-                      className="flex items-center justify-center space-x-1 sm:space-x-2 w-full sm:w-[258px] h-[40px] bg-[#FAFAFC] border border-[#EEEFF2] rounded-[6px] opacity-100 px-1 sm:px-2"
-                      aria-label="Pagination"
-                    >
-                      {/* Previous Button */}
-                      <button
-                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-r-2 sm:border-r-4 border-gray-200 pr-1 sm:pr-2 
-                          ${currentPage === 1
-                            ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-                            : "bg-white text-gray-700 hover:bg-gray-100"
-                          }`}
-                      >
-                        <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
-                          ${currentPage === 1 ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
-                          <HiArrowLeftCircle className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === 1 ? "text-gray-500" : "text-white"}`} />
-                        </span>
-                        <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F]"} w-6 sm:w-[28px] h-3 sm:h-[15px] text-center opacity-100`}>
-                          Prev
-                        </span>
-                      </button>
-
-                      {/* Page Numbers */}
-                      {(() => {
-                        const visiblePages = window.innerWidth < 640 ? 3 : 5;
-                        let startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
-                        let endPage = Math.min(totalPages, startPage + visiblePages - 1);
-
-                        if (endPage - startPage < visiblePages - 1) {
-                          startPage = Math.max(1, endPage - visiblePages + 1);
-                        }
-
-                        return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
-                          (page) => (
-                            <button
-                              key={page}
-                              onClick={() => setCurrentPage(page)}
-                              className={`w-6 h-6 sm:w-[32px] sm:h-[33px] text-xs sm:text-sm rounded-[4px] opacity-100 flex items-center justify-center 
-                                ${currentPage === page
-                                  ? "bg-[#3F058F] text-white font-semibold"
-                                  : "bg-white text-[#191616] hover:bg-gray-100"
-                                }`}
-                            >
-                              {page}
-                            </button>
-                          )
-                        );
-                      })()}
-
-                      {/* Next Button */}
-                      <button
-                        onClick={() =>
-                          setCurrentPage((prev) =>
-                            Math.min(prev + 1, totalPages)
-                          )
-                        }
-                        disabled={currentPage === totalPages}
-                        className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-l-2 sm:border-l-4 border-gray-200 pl-1 sm:pl-2
-                          ${currentPage === totalPages
-                            ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-                            : "bg-white text-gray-700 hover:bg-gray-100"
-                          }`}
-                      >
-                        <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold w-6 sm:w-[28px] h-3 sm:h-[15px] text-center 
-                          ${currentPage === totalPages ? "text-gray-400" : "text-[#3F058F]"} opacity-100`}>
-                          Next
-                        </span>
-                        <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
-                              ${currentPage === Math.ceil(filteredAccounts.length / 10) ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
-                          <HiArrowRightCircle className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === Math.ceil(filteredAccounts.length / 10) ? "text-gray-500" : "text-white"}`} />
-                        </span>
-                      </button>
-                    </nav>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
+     <div className="bg-white shadow rounded-lg overflow-hidden">
+  <div className="min-h-[400px] overflow-x-auto">
+    {currentItems.length === 0 ? (
+      <div className="p-8 sm:p-12 text-center">
+        <div className="text-4xl sm:text-6xl mb-4">📝</div>
+        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No Accounts Found</h3>
+        <p className="text-gray-600 text-sm sm:text-base">
+          {searchTerm || typeFilter !== "all" || categoryFilter !== "all"
+            ? "Try adjusting your search or filter criteria."
+            : "No accounts available."}
+        </p>
       </div>
+    ) : (
+      <>
+       {/* <div className="min-w-0 max-w-full overflow-x-auto"> */}
+  <div className="w-full overflow-x-auto">
+    <table className="min-w-[800px] w-full divide-y divide-gray-200 text-center">
+      <thead className="w-full h-[50px] bg-[#F6F5FA] rounded-[10px] opacity-100 sticky top-0">
+        <tr>
+          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
+            ACCOUNT #
+          </th>
+          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[120px]">
+            ACCOUNT NAME
+          </th>
+          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
+            DOCUMENTS
+          </th>
+          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[80px]">
+            TYPE
+          </th>
+          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
+            CATEGORY
+          </th>
+          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
+            BALANCE
+          </th>
+          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
+            ACTIONS
+          </th>
+        </tr>
+      </thead>
+
+      <tbody className="bg-white divide-y divide-gray-200">
+        {currentItems.map((account, index) => (
+          <tr
+            key={account.id}
+            onClick={() => handleRowClick(account.id)}
+            className={`h-[61px] bg-white rounded-[8px] opacity-100 transition-all cursor-pointer 
+              ${selectedRowId === account.id
+                ? "bg-purple-100 shadow-lg"
+                : "hover:shadow-md hover:bg-gray-100"
+              }`}
+          >
+            <td className="text-[10px] sm:text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-3 sm:px-4 py-3 min-w-[100px]">
+              {account.id}
+            </td>
+
+            <td className="px-3 sm:px-4 py-3 text-left text-[12px] sm:text-[14px] leading-[16px] font-bold text-[#191616] opacity-100 min-w-[120px]">
+              {account.name}
+            </td>
+
+            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap min-w-[100px]">
+              <div className="flex justify-start items-center">
+                <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 mr-1 sm:mr-2" />
+                <span className="text-xs sm:text-sm text-gray-900">{account.documentCount} files</span>
+              </div>
+            </td>
+
+            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap min-w-[80px]">
+              <span
+                className={`inline-flex justify-center items-center w-[70px] sm:w-[80px] h-[20px] sm:h-[24px] rounded-[6px] ${getStatusColor(account.type)} text-white text-[8px] sm:text-xs uppercase font-bold opacity-100`}
+              >
+                <span className="text-white text-[8px] sm:text-[10px] leading-[12px] font-semibold font-inter tracking-[1px] sm:tracking-[2px] uppercase text-center">{account.type}</span>
+              </span>
+            </td>
+
+            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-xs sm:text-sm text-gray-900 min-w-[100px]">
+              {account.category}
+            </td>
+
+            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-[10px] sm:text-[12px] leading-[16px] font-normal text-[#191616] opacity-100 min-w-[100px]">
+              {account.balance}
+            </td>
+
+            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap min-w-[100px]">
+              <div className="flex justify-center items-center space-x-1 sm:space-x-2">
+                <button className="text-blue-600 hover:text-blue-700 transition-colors" title="View Details">
+                  <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                </button>
+                <button className="text-gray-600 hover:text-gray-700 transition-colors">
+                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                </button>
+                <button className="text-gray-600 hover:text-red-700 transition-colors">
+                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                </button>
+                <button className="md:hidden text-gray-600 hover:text-gray-700 transition-colors">
+                  <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+{/* </div> */}
+
+{/* Pagination Controls */}
+<div className="h-auto sm:h-[55px] w-full bg-[#F5F5FA] sticky-bottom-0 rounded-[10px] opacity-100 px-3 sm:px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 sticky bottom-0 z-10">
+  <div className="flex flex-col sm:flex-row sm:flex-1 sm:items-center sm:justify-between gap-3 sm:gap-0 w-full">
+    <div className="text-center sm:text-left">
+      <p className="text-xs sm:text-sm text-gray-700">
+        Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+        <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredAccounts.length)}</span> of{' '}
+        <span className="font-medium">{filteredAccounts.length}</span> results
+      </p>
+    </div>
+    <div className="w-full sm:w-auto">
+      <nav
+        className="flex items-center justify-center space-x-1 sm:space-x-2 w-full sm:w-[258px] h-[40px] bg-[#FAFAFC] border border-[#EEEFF2] rounded-[6px] opacity-100 px-1 sm:px-2"
+        aria-label="Pagination"
+      >
+        {/* Previous Button */}
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-r-2 sm:border-r-4 border-gray-200 pr-1 sm:pr-2 
+            ${currentPage === 1
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+              : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+        >
+          <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
+            ${currentPage === 1 ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
+            <HiArrowLeftCircle className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === 1 ? "text-gray-500" : "text-white"}`} />
+          </span>
+          <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F]"} w-6 sm:w-[28px] h-3 sm:h-[15px] text-center opacity-100`}>
+            Prev
+          </span>
+        </button>
+
+        {/* Page Numbers */}
+        {(() => {
+          const visiblePages = window.innerWidth < 640 ? 3 : 5;
+          let startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
+          let endPage = Math.min(totalPages, startPage + visiblePages - 1);
+
+          if (endPage - startPage < visiblePages - 1) {
+            startPage = Math.max(1, endPage - visiblePages + 1);
+          }
+
+          return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
+            (page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`w-6 h-6 sm:w-[32px] sm:h-[33px] text-xs sm:text-sm rounded-[4px] opacity-100 flex items-center justify-center 
+                  ${currentPage === page
+                    ? "bg-[#3F058F] text-white font-semibold"
+                    : "bg-white text-[#191616] hover:bg-gray-100"
+                  }`}
+              >
+                {page}
+              </button>
+            )
+          );
+        })()}
+
+        {/* Next Button */}
+        <button
+          onClick={() =>
+            setCurrentPage((prev) =>
+              Math.min(prev + 1, totalPages)
+            )
+          }
+          disabled={currentPage === totalPages}
+          className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-l-2 sm:border-l-4 border-gray-200 pl-1 sm:pl-2
+            ${currentPage === totalPages
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+              : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+        >
+          <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold w-6 sm:w-[28px] h-3 sm:h-[15px] text-center 
+            ${currentPage === totalPages ? "text-gray-400" : "text-[#3F058F]"} opacity-100`}>
+            Next
+          </span>
+          <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
+                ${currentPage === Math.ceil(filteredAccounts.length / 10) ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
+            <HiArrowRightCircle className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === Math.ceil(filteredAccounts.length / 10) ? "text-gray-500" : "text-white"}`} />
+          </span>
+        </button>
+      </nav>
+    </div>
+  </div>
+</div>
+      </>
+    )}
+  </div>
+</div>
     </div>
   );
 }

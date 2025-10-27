@@ -2,7 +2,28 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Plus, Receipt, Download, Eye, Edit, X, User, CreditCard, CheckCircle, Clock, AlertCircle, FileText, Search, Filter, Check, ChevronLeft, ChevronRight } from "lucide-react"
+import {
+  Plus,
+  Receipt,
+  Download,
+  Eye,
+  Edit,
+  X,
+  User,
+  CreditCard,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  FileText,
+  Search,
+  Filter,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw,
+  Calendar,
+} from "lucide-react";
+
 import { BASE_URL } from "@/src/components/BaseUrl"
 import { pdf, Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
@@ -696,8 +717,8 @@ export default function Invoices() {
   }
 
   return (
-    <motion.div className=" pl-3  flex flex-col">
-      <div className="max-h-[calc(100vh-50px)] overflow-y-auto ">
+    <motion.div className=" flex flex-col min-h-screen ">
+<div className="max-h-[calc(100vh)] overflow-y-auto pb-24 sm:pb-8">
         {/* View Invoice Modal */}
         {viewInvoice && (
           <div className="fixed inset-0  bg-opacity-50 backdrop-blur-sm flex flex-col items-center justify-center z-50 p-4">
@@ -810,83 +831,127 @@ export default function Invoices() {
           </div>
         )}
 
-       <motion.div
+<motion.div
   initial={{ opacity: 0, y: 20 }}
   animate={{ opacity: 1, y: 0 }}
   transition={{ delay: 0.3 }}
   className="mt-4"
 >
-  <div className="grid grid-cols-2 sm:grid-cols-4  xs:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-    {/* Total Transactions Card - Top Left Rounded */}
-    <div className="w-full h-[142px] bg-[url('/Rectangle145138.svg')] bg-no-repeat bg-cover shadow-lg hover:shadow-xl transition-all duration-300 rounded-tl-[30px] sm:rounded-tl-[50px] rounded-tr-[6px] rounded-br-[6px] rounded-bl-[6px] flex flex-col pt-4 pl-4 text-start">
-      <div className="flex items-center gap-2 text-white w-full">
-        <div className="w-1/6 min-w-[40px] border-b-2 pb-2 border-[#604881]">
-          <div className="p-1 flex justify-center items-center rounded-full bg-[#604881]">
-            <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
-          </div>
-        </div>
-        <h3 className="text-xs sm:text-sm font-bold pb-2">Total Transactions</h3>
-      </div>
-      <div className="text-xl sm:text-2xl font-bold text-white mt-4 pl-2">
-        {invoices.length}
-      </div>
-    </div>
+  <div className="grid grid-cols-2 sm:grid-cols-4 xs:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    {statusOptions.map((status) => {
+      const normalizedValue = status.value.toLowerCase();
 
-    {/* Pending Card - Normal */}
-    <div className="w-full h-[142px] bg-[url('/Rectangle145211orange.svg')] bg-no-repeat bg-cover shadow-lg hover:shadow-xl transition-all duration-300 rounded-[6px] flex flex-col pt-4 pl-4 text-start">
-      <div className="flex items-center gap-2 text-white w-full">
-        <div className="w-1/6 min-w-[40px] border-b-2 pb-2 border-[#df530a]">
-          <div className="p-1 flex justify-center items-center rounded-full bg-[#df530a]">
-            <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
-          </div>
-        </div>
-        <h3 className="text-xs sm:text-sm font-bold pb-2">Pending</h3>
-      </div>
-      <div className="text-xl sm:text-2xl font-bold text-white mt-4 pl-2">
-        {invoices.filter(invoice => invoice.status.toLowerCase() === 'pending').length}
-      </div>
-    </div>
+      const count =
+        normalizedValue === "all"
+          ? invoices.length
+          : invoices.filter(
+              (invoice) =>
+                invoice.status.toLowerCase() === normalizedValue
+            ).length;
 
-    {/* paid: {
-                  borderColor: "border-emerald-400",
-                  iconBg: "bg-teal-600 bg-opacity-80",
-                  checkmarkBg: "bg-teal-500",
-                  image: "/Rectangle45212.svg",
-                  label: "Paid"
-                } */}
+      const statusIcons = {
+        all: <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-white" />,
+        paid: <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-white" />,
+        pending: <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-white" />,
+      };
 
-    {/* Paid Card - Bottom Right Rounded */}
-    <div className="w-full h-[142px] bg-[url('/Rectangle45212.svg')] bg-no-repeat bg-cover shadow-lg hover:shadow-xl transition-all duration-300 rounded-tr-[6px] rounded-br-[30px] sm:rounded-br-[50px] rounded-tl-[6px] rounded-bl-[6px] flex flex-col pt-4 pl-4 text-start">
-      <div className="flex items-center gap-2 text-white">
-        <div className="w-1/6 min-w-[40px] border-b-2 pb-2 border-emerald-400">
-          <div className="p-1 flex justify-center items-center rounded-full bg-teal-600 bg-opacity-80">
-            <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 " />
+      const statusConfig = {
+        all: {
+          borderColor: "border-[#604881]",
+          iconBg: "bg-[#604881]",
+          checkmarkBg: "bg-[#604881]",
+          image: "/Rectangle145138.svg",
+          label: "Total Transactions",
+        },
+        paid: {
+          borderColor: "border-emerald-400",
+          iconBg: "bg-teal-600 bg-opacity-80",
+          checkmarkBg: "bg-teal-500",
+          image: "/Rectangle45212.svg",
+          label: "Paid",
+        },
+        pending: {
+          borderColor: "border-[#df530a]",
+          iconBg: "bg-[#df530a]",
+          checkmarkBg: "bg-[#df530a]",
+          image: "/Rectangle145211orange.svg",
+          label: "Pending",
+        },
+      };
+
+      const config = statusConfig[normalizedValue] || {
+        borderColor: "border-gray-400",
+        iconBg: "bg-gray-600 bg-opacity-80",
+        checkmarkBg: "bg-gray-600",
+        image: "/Rectangle145138.svg",
+        label: status.label,
+      };
+
+      const IconComponent =
+        statusIcons[normalizedValue] ||
+        <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-white" />;
+
+      return (
+        <motion.div
+          key={status.value}
+          whileHover={{ y: -4, scale: 1.02 }}
+          transition={{ duration: 0.2 }}
+          onClick={() =>
+            setFilterStatus(
+              status.value === filterStatus ? "all" : status.value
+            )
+          }
+          className={`relative w-full h-[142px] bg-no-repeat bg-cover shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col pt-4 pl-4 text-start rounded-[6px] first:rounded-tl-[30px] sm:first:rounded-tl-[50px] last:rounded-br-[30px] sm:last:rounded-br-[50px]`}
+          style={{ backgroundImage: `url(${config.image})` }}
+        >
+          {filterStatus === status.value && (
+            <div className="absolute -top-2 -right-2 z-20">
+              <div
+                className={`flex items-center justify-center rounded-full p-[6px] ${config.checkmarkBg}`}
+              >
+                <Check className="h-[18px] w-[18px] text-white" />
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 text-white w-full">
+            <div
+              className={`w-1/6 min-w-[40px] border-b-2 pb-2 ${config.borderColor}`}
+            >
+              <div
+                className={`p-1 flex justify-center items-center rounded-full ${config.iconBg}`}
+              >
+                {IconComponent}
+              </div>
+            </div>
+            <h3 className="text-xs sm:text-sm font-bold pb-2">
+              {config.label}
+            </h3>
           </div>
-        </div>
-        <h3 className="text-xs sm:text-sm font-bold pb-2">Paid</h3>
-      </div>
-      <div className="text-xl sm:text-2xl font-bold text-white mt-4 pl-2">
-        {invoices.filter(invoice => invoice.status.toLowerCase() === 'paid').length}
-      </div>
-    </div>
+
+          <div className="text-xl sm:text-2xl font-bold text-white mt-4 pl-2">
+            {count}
+          </div>
+        </motion.div>
+      );
+    })}
   </div>
 </motion.div>
 
-
-        {/* Filters */}
-        <motion.div
+{/* Filters */}
+<motion.div
   initial={{ opacity: 0, y: 20 }}
   animate={{ opacity: 1, y: 0 }}
   transition={{ delay: 0.1 }}
-  className="bg-white p-1 mt-2 overflow-hidden"
+  className="bg-white p-2 mt-2 overflow-hidden rounded-lg shadow-sm border"
 >
   <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
     {/* Search Input */}
     <div className="w-full">
-      <div className="relative flex flex-row border border-gray-300 p-2 items-center gap-3 w-full">
+      <div className="relative flex flex-row border border-gray-300 p-2 items-center gap-3 w-full rounded-md">
         {/* Search Wrapper */}
         <div className="relative flex-1 min-h-[48px] flex items-center">
-          {/* Big Search Icon (initially visible) */}
+          {/* Big Search Icon */}
           {!isSearchActive && (
             <img
               src="/searchsvg-1.svg"
@@ -896,7 +961,7 @@ export default function Invoices() {
             />
           )}
 
-          {/* Small Search Icon, Input, and Cancel Button */}
+          {/* Active Search */}
           {isSearchActive && (
             <>
               <img
@@ -911,7 +976,6 @@ export default function Invoices() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-10 py-2 w-full rounded-md border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
               />
-              {/* Cancel Button */}
               <button
                 onClick={() => setIsSearchActive(false)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 z-10"
@@ -922,11 +986,11 @@ export default function Invoices() {
           )}
         </div>
 
-        {/* Filter Button (hidden when search is active) */}
+        {/* Filter Button */}
         {!isSearchActive && (
           <button
             onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
-            className="flex items-center justify-center gap-2 w-[120px] h-[42px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-lg transition-colors hover:bg-gray-200 relative px-3 py-2"
+            className="flex items-center justify-center gap-2 w-[120px] h-[42px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-lg transition-colors hover:bg-gray-200 relative px-3 py-2 "
           >
             <img src="/filter-icon.png" alt="filter icon" className="w-[20px] h-[20px]" />
             <span className="hidden sm:inline text-gray-700 text-sm font-medium">Filters</span>
@@ -935,9 +999,9 @@ export default function Invoices() {
       </div>
 
       {/* Active Filters Display */}
-      {!isSearchActive && (filterStatus !== "all" || dateFilter) && (
+      {!isSearchActive && (filterStatus !== "all" || dateFilter !== "all") && (
         <div className="flex flex-wrap gap-2 mt-2">
-          <div className="pr-2 border-r-2 pl-2">
+          <div className="pr-2 border-r-2 pl-2 flex items-center gap-2">
             <h1 className="text-[#9398A5] text-left font-medium text-[12px] leading-[14px] font-inter">
               Applied Filters
             </h1>
@@ -953,10 +1017,10 @@ export default function Invoices() {
           {filterStatus && filterStatus !== "all" && (
             <div className="mt-2 w-[172px] h-[46px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[6px] px-3 py-1 flex items-center justify-between relative">
               <div className="flex flex-col justify-center">
-                <span className="text-[#9398A5] font-medium text-[10px] uppercase font-['Inter']">
+                <span className="text-[#9398A5] font-medium text-[10px] uppercase font-inter">
                   Status:
                 </span>
-                <span className="text-[#3B444D] font-medium text-[12px] capitalize font-['Inter']">
+                <span className="text-[#3B444D] font-medium text-[12px] capitalize font-inter">
                   {statusOptions.find(opt => opt.value === filterStatus)?.label}
                 </span>
               </div>
@@ -970,18 +1034,18 @@ export default function Invoices() {
           )}
 
           {/* Date Filter Tag */}
-          {dateFilter && (
+          {dateFilter && dateFilter !== "all" && (
             <div className="mt-2 w-[172px] h-[46px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[6px] px-3 py-1 flex items-center justify-between relative">
               <div className="flex flex-col justify-center">
                 <span className="text-[#9398A5] font-medium text-[10px] uppercase font-inter">
                   Date:
                 </span>
                 <span className="text-[#3B444D] font-medium text-[12px] capitalize font-inter">
-                  {formatDateForDisplay(dateFilter)}
+                  {dateOptions.find(opt => opt.value === dateFilter)?.label}
                 </span>
               </div>
               <button
-                onClick={() => setDateFilter(null)}
+                onClick={() => setDateFilter("all")}
                 className="absolute -right-2 top-0 -translate-y-1/2 bg-[#E4E3F1] rounded-full h-5 w-5 flex items-center justify-center hover:bg-[#dcdbe1]"
               >
                 <img src="/cancel-btn.svg" alt="cancel-btn" className="w-[19px] h-[19px]" />
@@ -1022,7 +1086,7 @@ export default function Invoices() {
             <select
               value={tempFilterStatus}
               onChange={(e) => setTempFilterStatus(e.target.value)}
-              className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 pr-8  focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 pr-8 appearance-none focus:white focus:ring-blue-500 focus:border-blue-500 text-[#A8ACB7]"
             >
               {statusOptions.map((status) => (
                 <option key={status.value} value={status.value}>
@@ -1030,19 +1094,24 @@ export default function Invoices() {
                 </option>
               ))}
             </select>
+            <div className="pointer-events-none absolute right-3 top-1/2 translate-y-1/2 w-[14px] h-[8px] bg-[#A7ACB7] opacity-100 clip-path-triangle"></div>
           </div>
 
           {/* Date Filter */}
           <div className="relative">
             <label className="block text-sm text-[#3B444D] font-medium mb-1">Date</label>
-            <DatePicker
-              selected={tempDateFilter}
-              onChange={(date) => setTempDateFilter(date)}
-              dateFormat="dd/MM/yyyy"
-              placeholderText="Select date"
-              className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 pr-8 text-[#3B444D]  focus:outline-none focus:bg-[#FFE5D8] focus:ring-[#575DD5]"
-              calendarClassName="shadow-lg border border-gray-200 rounded-lg"
-            />
+            <select
+              value={tempDateFilter}
+              onChange={(e) => setTempDateFilter(e.target.value)}
+              className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 pr-8 appearance-none focus:white focus:ring-blue-500 focus:border-blue-500 text-[#A8ACB7]"
+            >
+              {dateOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute right-3 top-1/2 translate-y-1/2 w-[14px] h-[8px] bg-[#A7ACB7] opacity-100 clip-path-triangle"></div>
           </div>
         </div>
 
@@ -1050,7 +1119,7 @@ export default function Invoices() {
           <button
             onClick={() => {
               setTempFilterStatus("all");
-              setTempDateFilter(null);
+              setTempDateFilter("all");
               setIsFilterModalOpen(false);
             }}
             className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
@@ -1072,30 +1141,33 @@ export default function Invoices() {
 
 
         {/* Invoices Table */}
-      <motion.div
+<motion.div
   initial={{ opacity: 0, y: 20 }}
   animate={{ opacity: 1, y: 0 }}
   transition={{ delay: 0.2 }}
   className="bg-white rounded-lg shadow-sm border overflow-hidden my-6"
 >
-  <div 
+  {/* Scrollable Table */}
+  <div
     className="overflow-x-auto"
     style={{ scrollbarWidth: "thin", scrollbarColor: "#cbd5e1 transparent" }}
   >
     {filteredInvoices.length === 0 ? (
       <div className="p-8 sm:p-12 text-center">
         <div className="text-4xl sm:text-6xl mb-4">📝</div>
-        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No Invoices Found</h3>
+        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
+          No Invoices Found
+        </h3>
         <p className="text-sm sm:text-base text-gray-600 max-w-md mx-auto">
           {searchTerm
             ? "Try adjusting your search criteria."
             : filterStatus !== "all" && dateFilter
-              ? `No ${filterStatus.toLowerCase()} invoices found for the selected date.`
-              : filterStatus !== "all"
-                ? `No ${filterStatus.toLowerCase()} invoices found.`
-                : dateFilter
-                  ? "No invoices found for the selected date."
-                  : "No invoices available."}
+            ? `No ${filterStatus.toLowerCase()} invoices found for the selected date.`
+            : filterStatus !== "all"
+            ? `No ${filterStatus.toLowerCase()} invoices found.`
+            : dateFilter
+            ? "No invoices found for the selected date."
+            : "No invoices available."}
         </p>
       </div>
     ) : (
@@ -1143,51 +1215,47 @@ export default function Invoices() {
                 </td>
 
                 {/* Customer */}
-                <td className="px-2 py-3 text-left text-[14px] leading-[16px] font-bold text-[#191616] opacity-100 whitespace-nowrap">
+                <td className="px-2 py-3 text-left whitespace-nowrap">
                   <div className="text-sm text-gray-900">{invoice.customerName}</div>
                   <div className="text-xs text-gray-500">ID: {invoice.customerId}</div>
                 </td>
 
                 {/* Return */}
                 <td className="px-4 py-3 text-left whitespace-nowrap">
-                  <div>
-                    <div className="text-sm text-gray-900">{invoice.returnName}</div>
-                    <div className="text-sm text-gray-500">{invoice.returnType}</div>
-                  </div>
+                  <div className="text-sm text-gray-900">{invoice.returnName}</div>
+                  <div className="text-xs text-gray-500">{invoice.returnType}</div>
                 </td>
 
                 {/* Amount */}
                 <td className="px-4 py-3 text-left whitespace-nowrap">
-                  <div className="flex justify-start items-center">
-                    <span className="w-auto font-inter font-bold text-[14px] leading-[16px] text-[#191616] opacity-100">
-                      ${invoice.invoiceAmount.toFixed(2)} USD
-                    </span>
-                  </div>
+                  <span className="w-auto font-inter font-bold text-[14px] leading-[16px] text-[#191616] opacity-100">
+                    ${invoice.invoiceAmount.toFixed(2)} USD
+                  </span>
                 </td>
 
                 {/* Status */}
                 <td className="px-4 py-3 text-left whitespace-nowrap">
                   <span
-                    className={`inline-flex justify-center items-center w-[84px] h-[24px] bg-gradient-to-r from-[#F8BB46] to-[#E59806] rounded-[6px] text-white text-xs uppercase ${getStatusColor(
+                    className={`inline-flex justify-center items-center w-[84px] h-[24px] rounded-[6px] text-white text-xs uppercase font-semibold opacity-100 ${getStatusColor(
                       invoice.status
-                    )} font-semibold opacity-100`}
+                    )}`}
                   >
                     {invoice.status}
                   </span>
                 </td>
 
                 {/* Created */}
-                <td className="px-4 py-3 w-[75px] h-[15px] text-left font-inter font-normal text-[12px] leading-[16px] text-[#191616] opacity-100 whitespace-nowrap">
-                  <span>{formatDate(invoice.createdAt)}</span>
+                <td className="px-4 py-3 text-left whitespace-nowrap text-[12px] leading-[16px] text-[#191616] font-inter">
+                  {formatDate(invoice.createdAt)}
                 </td>
 
                 {/* Due Date */}
-                <td className="px-4 py-3 w-[75px] h-[15px] text-left font-inter font-normal text-[12px] leading-[16px] text-[#191616] opacity-100 whitespace-nowrap">
-                  <span>{formatDate(invoice.dueDate)}</span>
+                <td className="px-4 py-3 text-left whitespace-nowrap text-[12px] leading-[16px] text-[#191616] font-inter">
+                  {formatDate(invoice.dueDate)}
                 </td>
 
                 {/* Actions */}
-                <td className="px-4 py-3 w-[75px] h-[15px] text-left font-inter font-normal text-[12px] leading-[16px] text-[#191616] opacity-100 whitespace-nowrap">
+                <td className="px-4 py-3 text-left whitespace-nowrap">
                   <div className="flex items-center justify-start space-x-2">
                     {/* View */}
                     <button
@@ -1248,97 +1316,86 @@ export default function Invoices() {
         </table>
       </div>
     )}
+  </div>
 
-    {/* Pagination - Only show when there are invoices */}
-    {filteredInvoices.length > 0 && (
-  <div className="h-[55px] w-full bg-[#F5F5FA] rounded-[10px] opacity-100 px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 sticky bottom-0 z-10 pr-3">
-    <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-      <div>
-        <p className="text-sm text-gray-700">
-          Showing <span className="font-medium">{indexOfFirstRow + 1}</span> to{" "}
-          <span className="font-medium">{Math.min(indexOfLastRow, filteredInvoices.length)}</span> of{" "}
-          <span className="font-medium">{filteredInvoices.length}</span> results
-        </p>
-      </div>
+  {/* ✅ Pagination Moved Below */}
+  {filteredInvoices.length > 0 && (
+    <div className="w-full bg-[#F5F5FA] rounded-[10px] px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between border-t border-gray-200 mt-4">
+      <p className="text-sm text-gray-700 text-center sm:text-left mb-2 sm:mb-0">
+        Showing <span className="font-medium">{indexOfFirstRow + 1}</span> to{" "}
+        <span className="font-medium">{Math.min(indexOfLastRow, filteredInvoices.length)}</span> of{" "}
+        <span className="font-medium">{filteredInvoices.length}</span> results
+      </p>
 
-      <div>
-        <nav
-          className="flex items-center space-x-2 w-[258px] h-[40px] bg-[#FAFAFC] border border-[#EEEFF2] rounded-[6px]"
-          aria-label="Pagination"
+      <nav
+        className="flex items-center justify-center sm:justify-end flex-wrap gap-2 w-full sm:w-auto"
+        aria-label="Pagination"
+      >
+        {/* Previous Button */}
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className={`flex items-center gap-1 px-3 py-1 text-sm rounded-[4px] border transition-colors
+            ${currentPage === 1
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+              : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
         >
-          {/* Previous Button */}
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className={`flex items-center gap-1 px-3 py-1 text-sm rounded-[4px] transition-colors border-r-4 border-gray-200 pr-2 
-              ${currentPage === 1
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-              }`}
-          >
-            <span className={`flex items-center justify-center h-[14px] w-[14px] rounded 
-              ${currentPage === 1 ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
-              <HiArrowLeftCircle className={`h-[10px] w-[10px] text-white ${currentPage === 1 ? "text-gray-500" : "text-white"}`} />
-            </span>
-            <span className={`text-[12px] leading-[16px] font-bold ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F]"} w-[28px] h-[15px] text-center opacity-100`}>
-              Prev
-            </span>
-          </button>
+          <HiArrowLeftCircle
+            className={`h-[14px] w-[14px] ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F]"}`}
+          />
+          <span className="font-bold text-[#3F058F] text-xs sm:text-sm">Prev</span>
+        </button>
 
-          {/* Page Numbers */}
-          {(() => {
-            const totalPages = Math.ceil(filteredInvoices.length / 10)
-            const visiblePages = 5
-            let startPage = Math.max(1, currentPage - 2)
-            let endPage = Math.min(totalPages, startPage + visiblePages - 1)
-            if (endPage - startPage < visiblePages - 1) {
-              startPage = Math.max(1, endPage - visiblePages + 1)
-            }
-            return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
-              (page) => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`w-[32px] h-[33px] text-sm rounded-[4px] flex items-center justify-center 
-                    ${currentPage === page
-                      ? "bg-[#3F058F] text-white font-semibold"
-                      : "bg-white text-[#191616] hover:bg-gray-100"
-                    }`}
-                >
-                  {page}
-                </button>
-              )
+        {/* Page Numbers */}
+        {(() => {
+          const totalPages = Math.ceil(filteredInvoices.length / rowsPerPage);
+          const visiblePages = 5;
+          let startPage = Math.max(1, currentPage - 2);
+          let endPage = Math.min(totalPages, startPage + visiblePages - 1);
+          if (endPage - startPage < visiblePages - 1) {
+            startPage = Math.max(1, endPage - visiblePages + 1);
+          }
+          return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
+            (page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`w-[32px] h-[32px] text-sm rounded-[4px] flex items-center justify-center border
+                  ${currentPage === page
+                    ? "bg-[#3F058F] text-white font-semibold"
+                    : "bg-white text-[#191616] hover:bg-gray-100"
+                  }`}
+              >
+                {page}
+              </button>
             )
-          })()}
+          );
+        })()}
 
-          {/* Next Button */}
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(filteredInvoices.length / 10)))
-            }
-            disabled={currentPage === Math.ceil(filteredInvoices.length / 10)}
-            className={`flex items-center gap-1 px-3 py-1 text-sm rounded-[4px] transition-colors border-l-4 border-gray-200 pl-2
-              ${currentPage === Math.ceil(filteredInvoices.length / 10)
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-              }`}
-          >
-            <span className={`text-[12px] leading-[16px] font-bold w-[28px] h-[15px] text-center 
-              ${currentPage === Math.ceil(filteredInvoices.length / 10) ? "text-gray-400" : "text-[#3F058F]"} opacity-100`}>
-              Next
-            </span>
-            <span className={`flex items-center justify-center h-[14px] w-[14px] rounded 
-              ${currentPage === Math.ceil(filteredInvoices.length / 10) ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
-              <HiArrowRightCircle className={`h-[10px] w-[10px] ${currentPage === Math.ceil(filteredInvoices.length / 10) ? "text-gray-500" : "text-white"}`} />
-            </span>
-          </button>
-        </nav>
-      </div>
+        {/* Next Button */}
+        <button
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(filteredInvoices.length / rowsPerPage)))
+          }
+          disabled={currentPage === Math.ceil(filteredInvoices.length / rowsPerPage)}
+          className={`flex items-center gap-1 px-3 py-1 text-sm rounded-[4px] border transition-colors
+            ${currentPage === Math.ceil(filteredInvoices.length / rowsPerPage)
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+              : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+        >
+          <span className="font-bold text-[#3F058F] text-xs sm:text-sm">Next</span>
+          <HiArrowRightCircle
+            className={`h-[14px] w-[14px] ${currentPage === Math.ceil(filteredInvoices.length / rowsPerPage)
+              ? "text-gray-400"
+              : "text-[#3F058F]"
+            }`}
+          />
+        </button>
+      </nav>
     </div>
-  </div>
-)}
-
-  </div>
+  )}
 </motion.div>
 
 

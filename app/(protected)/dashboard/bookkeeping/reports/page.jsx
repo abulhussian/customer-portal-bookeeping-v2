@@ -1,7 +1,7 @@
 "use client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, FileText, TrendingUp, Calendar } from "lucide-react";
+import { Download, FileText, TrendingUp, Calendar, BarChart3, Calculator, File } from "lucide-react";
 import { toast } from "sonner";
 import {
   Select,
@@ -13,44 +13,97 @@ import {
 
 export default function Reports() {
   const reportTypes = [
-    {
-      title: "Balance Sheet",
-      description: "Summary of assets, liabilities, and equity at a specific point in time",
-      icon: FileText,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
-    },
-    {
-      title: "Income Statement",
-      description: "Revenue and expenses over a period of time showing profit or loss",
-      icon: TrendingUp,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
-    },
-    {
-      title: "Cash Flow Statement",
-      description: "Movement of cash in and out of the business over a period",
-      icon: Calendar,
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-100",
-    },
-    {
-      title: "Trial Balance",
-      description: "List of all ledger accounts and their balances at a specific date",
-      icon: FileText,
-      color: "text-red-600",
-      bgColor: "bg-red-100",
-    },
-  ];
+  {
+    title: "Financial Summary",
+    description: "Comprehensive financial overview",
+    icon: FileText, // Your icon component
+    bg: "/Rectangle145138.svg", // Background image path
+    borderColor: "#7285D5",
+    iconBg: "#9A6EEF"
+  },
+  {
+    title: "Expense Report", 
+    description: "Detailed expense breakdown",
+    icon: File,
+    bg: "/Rectangle145211orange.svg",
+    borderColor: "#DD7949", 
+    iconBg: "#E86118"
+  },
+  {
+    title: "Revenue Analysis",
+    description: "Revenue trends and insights",
+    icon: BarChart3,
+    bg: "/Rectangle145235blue.svg", 
+    borderColor: "#7285D5",
+    iconBg: "#4C56CC"
+  },
+  {
+    title: "Tax Report",
+    description: "Tax-related documents and summaries",
+    icon: Calculator,
+    bg: "/Rectangle45212.svg",
+    borderColor: "#3CB0A5",
+    iconBg: "#229187"
+  }
+];
 
   const handleGenerateReport = (reportType) => {
     toast.success(`Generating ${reportType}...`);
   };
 
   return (
-    <div className="space-y-6 max-h-[calc(100vh-50px)] overflow-y-auto p-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-h-[calc(100vh)] overflow-y-auto p-6 max-w-7xl mx-auto pb-24 sm:pb-8">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900">Reports</h2>
+  <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white mb-4">Available Reports</h3>
+ <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-5 mt-4">
+  {reportTypes.map((report, index) => (
+    <div
+      key={report.title}
+      className="w-full xs:w-[48%] sm:w-[200px] md:w-[210px] lg:w-[234px] 
+               h-[120px] sm:h-[130px] md:h-[142px] 
+               rounded-[40px_6px_6px_6px] 
+               bg-cover bg-no-repeat hover:shadow-lg transition-shadow 
+               cursor-pointer p-3 md:p-4 group flex-shrink-0"
+      style={{ 
+        backgroundImage: `url(${report.bg})`, 
+        borderRadius: index === 0 ? "40px 6px 6px 6px" : 
+                     index === reportTypes.length - 1 ? "6px 6px 40px 6px" : "6px"
+      }}
+    >
+      <div className="flex flex-col justify-between h-full">
+        <div className="flex items-start gap-2 md:gap-3">
+          <div
+            className="p-2 rounded-full w-8 h-8 sm:w-[36px] sm:h-[36px] md:w-[39px] md:h-[39px] flex items-center justify-center flex-shrink-0"
+            style={{ backgroundColor: report.iconBg }}
+          >
+            <report.icon className="h-4 w-4 sm:h-5 sm:w-5 md:w-6 md:h-6 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="text-xs sm:text-xs md:text-sm font-medium text-white uppercase tracking-widest line-clamp-1">
+              {report.title}
+            </h4>
+            <p className="text-[10px] sm:text-[10px] md:text-xs text-gray-200 opacity-90 leading-tight line-clamp-2 mt-1">
+              {report.description}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-1 md:mt-2">
+          <button
+            onClick={() => handleGenerateReport(report.title)}
+            className="px-2 py-1.5 md:px-3 md:py-1.5 text-white rounded text-xs font-medium transition-all hover:opacity-90 w-20 sm:w-24 md:w-1/3"
+            style={{ backgroundColor: report.iconBg }}
+          >
+            Generate
+          </button>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+</div>
+      <div>
+        <h2 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">Reports</h2>
         <p className="text-gray-600 mt-2">
           Generate and download financial reports
         </p>
@@ -116,33 +169,6 @@ export default function Reports() {
         </CardContent>
       </Card>
 
-      <div>
-        <h3 className="text-xl font-semibold mb-4">Available Reports</h3>
-        <div className="grid gap-4 md:grid-cols-2">
-          {reportTypes.map((report) => (
-            <Card key={report.title} className="hover:shadow-lg transition-shadow cursor-pointer group">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <div className={`p-3 rounded-lg ${report.bgColor} group-hover:scale-110 transition-transform`}>
-                    <report.icon className={`h-6 w-6 ${report.color}`} />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-lg mb-2">{report.title}</h4>
-                    <p className="text-sm text-gray-600 mb-4">{report.description}</p>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleGenerateReport(report.title)}
-                    >
-                      Generate Report
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
 
       <Card>
         <CardHeader>

@@ -87,10 +87,13 @@ export default function DashboardLayout({ children, isOpen, setIsOpen, currentPa
           <div 
             className={`flex-1 flex flex-col overflow-hidden bg-white transition-all duration-300 ${
               isMobile ? "rounded-none" : ""
-            } ${isOpen && isMobile ? "hidden" : "block"}`}
+            } `}
           >
             <div className="flex-1  w-full">
+              <div className="block sm:hidden min-h-8"></div>
+              <div className="px-3 py-4">
               {children}
+              </div>
             </div>
           </div>
         </div>

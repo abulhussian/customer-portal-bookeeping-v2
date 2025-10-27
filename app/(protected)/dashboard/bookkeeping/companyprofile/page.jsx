@@ -30,7 +30,7 @@ export default function CompanyProfile() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 max-h-[calc(100vh-50px)] overflow-y-auto space-y-6">
+    <div className="max-w-7xl mx-auto p-6 max-h-[calc(100vh)] overflow-y-auto space-y-6 pb-24 sm:pb-8">
       <div>
         <h2 className="text-lg font-bold text-gray-900">Company Profile</h2>
         <p className="text-gray-600 mt-2">
@@ -58,7 +58,7 @@ export default function CompanyProfile() {
                   value={formData.companyName}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2  bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                 />
               </div>
               <div className="space-y-2">

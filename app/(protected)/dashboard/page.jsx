@@ -178,15 +178,15 @@ const Dashboard = () => {
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
   </div>
 ) : (
-  <main className="flex flex-col overflow-hidden max-h-[calc(100vh-50px)] overflow-y-auto p-4 lg:pl-4">
+  <main className="flex flex-col h-screen overflow-y-auto pb-24 sm:pb-8">
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="space-y-4"
+      className="space-y-4 mt-4 mb-8"
     >
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 xs:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {/* Card 1 - Top Left Rounded */}
         <div className="w-full h-[142px] bg-[url('/Rectangle145138.svg')] bg-no-repeat bg-cover shadow-lg hover:shadow-xl transition-all duration-300 rounded-tl-[30px] sm:rounded-tl-[50px] rounded-tr-[6px] rounded-br-[6px] rounded-bl-[6px] flex flex-col pt-4 pl-4 text-start">
           <div className="flex items-center gap-2 text-white w-full">
