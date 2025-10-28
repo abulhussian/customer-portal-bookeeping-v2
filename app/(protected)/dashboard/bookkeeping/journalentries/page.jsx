@@ -460,7 +460,7 @@ export default function JournalEntries() {
 
                 {/* 👇 When active: show search input + small search icon */}
                 {isSearchActive && (
-                  <>
+                  <div className="relative w-4/5">
                     <img
                       src="/search-icon-2.svg"
                       alt="search-icon"
@@ -479,7 +479,7 @@ export default function JournalEntries() {
                     >
                       <X className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
-                  </>
+                  </div>
                 )}
               </div>
 
@@ -494,6 +494,20 @@ export default function JournalEntries() {
                     <span className="text-[14px] leading-[11px] font-medium text-[#625377]">
                       Filters
                     </span>
+                    {/* ✅ Show badge only when filters are actually applied */}
+      {(
+        (typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types") ||
+        (categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories")
+      ) && (
+        <span className="w-[19px] h-[19px] bg-[#E4E3F1] border border-[#E4E3F1] rounded-full flex items-center justify-center text-[#615376] text-[12px]">
+          {[
+            typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types" ? 1 : 0,
+            categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories" ? 1 : 0,
+          ]
+            .filter(Boolean)
+            .length}
+        </span>
+      )}
                   </button>
 
 

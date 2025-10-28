@@ -145,7 +145,7 @@ export default function ChartOfAccounts() {
 
               {/* 👇 When active: show search input + small search icon */}
               {isSearchActive && (
-                <>
+                <div className="relative w-4/5">
                   <img
                     src="/search-icon-2.svg"
                     alt="search-icon"
@@ -164,28 +164,48 @@ export default function ChartOfAccounts() {
                   >
                     <X className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
-                </>
+                </div>
               )}
             </div>
 
             {/* 🧩 Filter + Add Account Buttons (Hidden when search active) */}
-            {!isSearchActive && (
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-                <button
-                  onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
-                  className="flex items-center justify-center gap-2 w-full sm:w-[123px] h-[42px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[8px] transition-colors hover:bg-gray-200 px-4 py-2"
-                >
-                  <img src="/filter-icon.png" alt="filter-icon" className="h-5 w-5 sm:h-[22px] sm:w-[22px]" />
-                  <span className="text-[14px] leading-[11px] font-medium text-[#625377]">
-                    Filters
-                  </span>
-                </button>
+           {!isSearchActive && (
+  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+    <button
+      onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
+      className="flex items-center justify-center gap-2 w-full sm:w-[123px] h-[42px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[8px] transition-colors hover:bg-gray-200 px-4 py-2"
+    >
+      <img
+        src="/filter-icon.png"
+        alt="filter-icon"
+        className="h-5 w-5 sm:h-[22px] sm:w-[22px]"
+      />
+      <span className="text-[14px] leading-[11px] font-medium text-[#625377]">
+        Filters
+      </span>
 
-                <button className="w-full sm:w-[166px] h-[42px] bg-[linear-gradient(257deg,_#5EA1F8_0%,_#4486D9_100%)] rounded-[10px_10px_10px_0px] opacity-100 flex items-center justify-center text-white gap-2 text-sm sm:text-base">
-                  <Plus className="w-4 h-4" /> Add Account
-                </button>
-              </div>
-            )}
+      {/* ✅ Show badge only when filters are actually applied */}
+      {(
+        (typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types") ||
+        (categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories")
+      ) && (
+        <span className="w-[19px] h-[19px] bg-[#E4E3F1] border border-[#E4E3F1] rounded-full flex items-center justify-center text-[#615376] text-[12px]">
+          {[
+            typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types" ? 1 : 0,
+            categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories" ? 1 : 0,
+          ]
+            .filter(Boolean)
+            .length}
+        </span>
+      )}
+    </button>
+
+    <button className="w-full sm:w-[166px] h-[42px] bg-[linear-gradient(257deg,_#5EA1F8_0%,_#4486D9_100%)] rounded-[10px_10px_10px_0px] opacity-100 flex items-center justify-center text-white gap-2 text-sm sm:text-base">
+      <Plus className="w-4 h-4" /> Add Account
+    </button>
+  </div>
+)}
+
           </div>
         </div>
 

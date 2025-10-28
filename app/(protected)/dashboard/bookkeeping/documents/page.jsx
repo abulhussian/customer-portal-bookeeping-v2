@@ -149,70 +149,69 @@ export default function Documents() {
       </div>
 
      {/* Cards Section */}
-<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 mt-4">
+<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 sm:gap-2 mt-2 sm:mt-4">
   {[
-    { 
-      title: "Total Files", 
-      count: 156, 
-      icon: <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />, 
-      bg: "/Rectangle145138.svg", 
-      rounded: "rounded-[20px_6px_6px_6px] sm:rounded-[30px_6px_6px_6px] lg:rounded-[40px_6px_6px_6px]", 
-      borderColor: "#7285D5", 
-      iconBg: "#9A6EEF" 
+    {
+      title: "Total Files",
+      count: 156,
+      icon: <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />,
+      bg: "/Rectangle145138.svg",
+      rounded: "rounded-[20px_6px_6px_6px] sm:rounded-[30px_6px_6px_6px] lg:rounded-[40px_6px_6px_6px]",
+      borderColor: "#7285D5",
+      iconBg: "#9A6EEF",
     },
-    { 
-      title: "Invoices", 
-      count: 45, 
-      icon: <File className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />, 
-      bg: "/Rectangle145211orange.svg", 
-      rounded: "rounded-[6px]", 
-      borderColor: "#DD7949", 
-      iconBg: "#E86118" 
+    {
+      title: "Invoices",
+      count: 45,
+      icon: <File className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />,
+      bg: "/Rectangle145211orange.svg",
+      rounded: "rounded-[6px]",
+      borderColor: "#DD7949",
+      iconBg: "#E86118",
     },
-    { 
-      title: "Statements", 
-      count: 32, 
-      icon: <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />, 
-      bg: "/Rectangle145235blue.svg", 
-      rounded: "rounded-[6px]", 
-      borderColor: "#7285D5", 
-      iconBg: "#4C56CC" 
+    {
+      title: "Statements",
+      count: 32,
+      icon: <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />,
+      bg: "/Rectangle145235blue.svg",
+      rounded: "rounded-[6px]",
+      borderColor: "#7285D5",
+      iconBg: "#4C56CC",
     },
-    { 
-      title: "Receipts", 
-      count: 79, 
-      icon: <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />, 
-      bg: "/Rectangle45212.svg", 
-      rounded: "rounded-[6px_6px_20px_6px] sm:rounded-[6px_6px_30px_6px] lg:rounded-[6px_6px_40px_6px]", 
-      borderColor: "#3CB0A5", 
-      iconBg: "#229187" 
+    {
+      title: "Receipts",
+      count: 79,
+      icon: <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />,
+      bg: "/Rectangle45212.svg",
+      rounded: "rounded-[6px_6px_20px_6px] sm:rounded-[6px_6px_30px_6px] lg:rounded-[6px_6px_40px_6px]",
+      borderColor: "#3CB0A5",
+      iconBg: "#229187",
     },
   ].map((card, index) => (
     <div
       key={index}
-      className={`relative w-full h-[120px] sm:h-[130px] lg:h-[142px] lg:w-[234px] ${card.rounded} 
-           bg-cover bg-no-repeat hover:shadow-lg transition-shadow cursor-pointer p-3 sm:p-4`}
+      className={`relative w-full h-[110px] sm:h-[120px] lg:h-[130px] ${card.rounded} 
+        bg-cover bg-no-repeat hover:shadow-md transition-all cursor-pointer p-2 sm:p-3`}
       style={{ backgroundImage: `url(${card.bg})` }}
     >
       <div className="flex flex-col justify-between h-full">
-        <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 pb-1 sm:pb-2">
+        <div className="flex items-center gap-2 sm:gap-3 pb-1">
           <div
-            className="p-1.5 sm:p-2 rounded-full w-[32px] h-[32px] sm:w-[36px] sm:h-[36px] lg:w-[39px] lg:h-[39px] flex items-center justify-center"
+            className="p-1.5 sm:p-2 rounded-full w-[30px] h-[30px] sm:w-[34px] sm:h-[34px] flex items-center justify-center"
             style={{ backgroundColor: card.iconBg }}
           >
             {card.icon}
           </div>
-          <p className="text-xs sm:text-sm font-medium text-white uppercase tracking-widest">
+          <p className="text-xs sm:text-sm font-medium text-white uppercase tracking-wider">
             {card.title}
           </p>
         </div>
-        <p className="text-xl sm:text-2xl font-bold text-white mt-1 sm:mt-2">
-          {card.count}
-        </p>
+        <p className="text-lg sm:text-xl font-bold text-white mt-1">{card.count}</p>
       </div>
     </div>
   ))}
 </div>
+
 
       {/* Search and Filter Bar */}
       <div className="">
@@ -240,7 +239,7 @@ export default function Documents() {
 
               {/* 👇 When active: show search input + small search icon */}
               {isSearchActive && (
-                <>
+                <div className="relative w-4/5">
                   <img
                     src="/search-icon-2.svg"
                     alt="search-icon"
@@ -259,7 +258,7 @@ export default function Documents() {
                   >
                     <X className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
-                </>
+                </div>
               )}
             </div>
 
@@ -274,6 +273,20 @@ export default function Documents() {
                   <span className="text-[14px] leading-[11px] font-medium text-[#625377] dark:text-gray-400">
                     Filters
                   </span>
+                  {/* ✅ Show badge only when filters are actually applied */}
+      {(
+        (typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types") ||
+        (categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories")
+      ) && (
+        <span className="w-[19px] h-[19px] bg-[#E4E3F1] border border-[#E4E3F1] rounded-full flex items-center justify-center text-[#615376] text-[12px]">
+          {[
+            typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types" ? 1 : 0,
+            categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories" ? 1 : 0,
+          ]
+            .filter(Boolean)
+            .length}
+        </span>
+      )}
                 </button>
 
                 <button

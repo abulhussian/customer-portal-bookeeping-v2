@@ -85,7 +85,7 @@ const Returns = () => {
       return localStorage.getItem("loginId")
     }
   }
-  
+
   const [selectedDate, setSelectedDate] = useState(null);
   const loginId = getUserId()
   const role = localStorage.getItem("role")
@@ -550,7 +550,7 @@ const Returns = () => {
 
     return matchesSearch && matchesStatus && matchesType && matchesDate;
   });
-  
+
   const currentItems = filteredReturns.slice(indexOfFirstItem, indexOfLastItem);
 
   const detailedReturns = returnDetails
@@ -930,7 +930,7 @@ const Returns = () => {
                       <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                     </div>
                   </div>
-                  <h3 className="text-[10px] sm:text-sm font-medium uppercase leading-tight font-normal font-inter">Initial Request</h3>
+                  <h3 className="text-xs sm:text-sm font-medium text-white uppercase tracking-wider">Initial Request</h3>
                 </div>
                 <div>
                   <div className="text-base sm:text-[18px] leading-tight sm:leading-[38px] font-bold font-inter pl-1 sm:pl-2">{stats.initialRequest}</div>
@@ -959,7 +959,7 @@ const Returns = () => {
                       <FileCheck2 className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                     </div>
                   </div>
-                  <h3 className="text-[10px] sm:text-sm font-medium uppercase leading-tight font-normal font-inter">Document Verified</h3>
+                  <h3 className="text-xs sm:text-sm font-medium text-white uppercase tracking-widerr">Document Verified</h3>
                 </div>
                 <div>
                   <div className="text-base sm:text-[18px] leading-tight sm:leading-[38px] font-bold font-inter pl-1 sm:pl-2">{stats.documentVerified}</div>
@@ -988,7 +988,7 @@ const Returns = () => {
                       <FilePenLine className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                     </div>
                   </div>
-                  <h3 className="text-[10px] sm:text-sm font-medium uppercase leading-tight font-normal font-inter">In Preparation</h3>
+                  <h3 className="text-xs sm:text-sm font-medium text-white uppercase tracking-wider">In Preparation</h3>
                 </div>
                 <div>
                   <div className="text-base sm:text-[18px] leading-tight sm:leading-[38px] font-bold font-inter pl-1 sm:pl-2">{stats.inPreparation}</div>
@@ -1015,7 +1015,7 @@ const Returns = () => {
                       <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                     </div>
                   </div>
-                  <h3 className="text-[10px] sm:text-sm font-medium uppercase leading-tight font-normal font-inter">In Review</h3>
+                  <h3 className="text-xs sm:text-sm font-medium text-white uppercase tracking-wider">In Review</h3>
                 </div>
                 <div>
                   <div className="text-base sm:text-[18px] leading-tight sm:leading-[38px] font-bold font-inter pl-1 sm:pl-2">{stats.inReview}</div>
@@ -1044,7 +1044,7 @@ const Returns = () => {
                       <FileUp className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                     </div>
                   </div>
-                  <h3 className="text-[10px] sm:text-sm font-medium uppercase leading-tight font-normal font-inter">Ready to File</h3>
+                  <h3 className="text-xs sm:text-sm font-medium text-white uppercase tracking-wider">Ready to File</h3>
                 </div>
                 <div>
                   <div className="text-base sm:text-[18px] leading-tight sm:leading-[38px] font-bold font-inter pl-1 sm:pl-2">{stats.readyToFile}</div>
@@ -1073,7 +1073,7 @@ const Returns = () => {
                       <Check className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                     </div>
                   </div>
-                  <h3 className="text-[10px] sm:text-sm font-medium uppercase leading-tight font-normal font-inter">Filed Return</h3>
+                  <h3 className="text-xs sm:text-sm font-medium text-white uppercase tracking-wider">Filed Return</h3>
                 </div>
                 <div>
                   <div className="text-base sm:text-[18px] leading-tight sm:leading-[38px] font-bold font-inter pl-1 sm:pl-2">{stats.filed}</div>
@@ -1098,25 +1098,25 @@ const Returns = () => {
 
                     {isSearchActive && (
                       <div className="relative w-4/5">
-  <img
-    src="/search-icon-2.svg"
-    alt="search-icon"
-    className="w-[15px] h-[15px] sm:w-[17px] sm:h-[17px] absolute left-3 sm:left-4 top-2.5 sm:top-3"
-  />
-  <input
-    type="text"
-    placeholder="Search returns..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    className="pl-8 sm:pl-10 pr-10 sm:pr-12 w-full py-1.5 sm:py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-  />
-  <button
-    onClick={handleCloseSearch}
-    className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-500"
-  >
-    <X className="w-4 h-4 sm:w-5 sm:h-5" />
-  </button>
-</div>
+                        <img
+                          src="/search-icon-2.svg"
+                          alt="search-icon"
+                          className="w-[15px] h-[15px] sm:w-[17px] sm:h-[17px] absolute left-3 sm:left-4 top-2.5 sm:top-3"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Search returns..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-8 sm:pl-10 pr-10 sm:pr-12 w-full py-1.5 sm:py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        />
+                        <button
+                          onClick={handleCloseSearch}
+                          className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-red-500"
+                        >
+                          <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </button>
+                      </div>
                     )}
                   </div>
 
@@ -1125,12 +1125,23 @@ const Returns = () => {
                     <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto mt-2">
                       <button
                         onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
-                        className="flex items-center justify-center gap-2 flex-1 sm:flex-none sm:w-[123px] h-[38px] sm:h-[42px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[8px] transition-colors hover:bg-gray-200 relative px-3 sm:px-4 py-2"
+                        className="relative flex items-center gap-2 w-[123px] h-[42px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[8px] transition-colors hover:bg-gray-200 px-4 py-2"
                       >
-                        <img src="/filter-icon.png" alt="filter-icon" className="h-[18px] w-[18px] sm:h-[22px] sm:w-[22px]" />
-                        <span className="text-[12px] sm:text-[14px] leading-tight font-medium text-[#625377]">
+                        <img src="/filter-icon.png" alt="filter-icon" className="h-[22px] w-[22px]" />
+                        <span className="hidden sm:inline text-left text-[14px] leading-[11px] font-medium text-[#625377]">
                           Filters
                         </span>
+
+                        {/* 🔸 Applied Filters Count Badge */}
+                        {(statusFilter !== "all" || typeFilter !== "all" || dateFilter !== "all") && (
+                          <span className=" w-[19px] h-[19px] bg-[#E4E3F1] border border-[#E4E3F1] opacity-100 rounded-full flex items-center justify-center text-[#615376]">
+                            {[
+                              statusFilter !== "all" ? 1 : 0,
+                              typeFilter !== "all" ? 1 : 0,
+                              dateFilter !== "all" ? 1 : 0
+                            ].filter(Boolean).reduce((a, b) => a + b, 0)}
+                          </span>
+                        )}
                       </button>
 
                       <button
@@ -1141,7 +1152,7 @@ const Returns = () => {
                         }}
                         className="flex-1 sm:flex-none sm:w-[166px] h-[38px] sm:h-[42px] bg-[linear-gradient(257deg,_#5EA1F8_0%,_#4486D9_100%)] rounded-[10px_10px_10px_0px] opacity-100 flex items-center justify-center text-white gap-2 text-sm"
                       >
-                        <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
+                        <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span className="hidden xs:inline">New Tax Return</span>
                         <span className="xs:hidden">New Return</span>
                       </button>
@@ -1158,8 +1169,8 @@ const Returns = () => {
                       Applied Filters
                     </h1>
                     {(searchTerm || statusFilter !== "all" || typeFilter !== "all" || dateFilter !== "all") && (
-                      <button 
-                        onClick={clearAllFilters} 
+                      <button
+                        onClick={clearAllFilters}
                         className="text-[12px] sm:text-[14px] leading-tight font-medium text-[#FC6719] hover:opacity-80 transition-opacity"
                       >
                         Clear all
@@ -1173,8 +1184,8 @@ const Returns = () => {
                         <p className="text-[9px] sm:text-[10px] leading-tight tracking-wider text-[#9398A5] font-medium uppercase">STATUS</p>
                         <div className="flex items-center justify-between">
                           <p className="text-[11px] sm:text-[12px] leading-tight text-[#3B444D] font-medium uppercase truncate">{statusFilter}</p>
-                          <button 
-                            onClick={() => setStatusFilter('all')} 
+                          <button
+                            onClick={() => setStatusFilter('all')}
                             className="absolute -right-1 sm:-right-2 top-0 -translate-y-1/2 bg-[#E4E3F1] border border-[#E4E3F1] rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center hover:bg-[#dcdbe1]"
                           >
                             <X className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-[#3B444D]" />
@@ -1190,8 +1201,8 @@ const Returns = () => {
                         <p className="text-[9px] sm:text-[10px] leading-tight tracking-wider text-[#9398A5] font-medium uppercase">TYPE</p>
                         <div className="flex items-center justify-between">
                           <p className="text-[11px] sm:text-[12px] leading-tight text-[#3B444D] font-medium capitalize truncate">{typeFilter || "All Types"}</p>
-                          <button 
-                            onClick={() => setTypeFilter('all')} 
+                          <button
+                            onClick={() => setTypeFilter('all')}
                             className="absolute -right-1 sm:-right-2 top-0 -translate-y-1/2 bg-[#E4E3F1] border border-[#E4E3F1] rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center hover:bg-[#dcdbe1]"
                           >
                             <X className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-[#3B444D]" />
@@ -1209,8 +1220,8 @@ const Returns = () => {
                           <p className="text-[11px] sm:text-[12px] leading-tight text-[#3B444D] font-medium capitalize truncate">
                             {new Date(dateFilter).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                           </p>
-                          <button 
-                            onClick={() => setDateFilter("all")} 
+                          <button
+                            onClick={() => setDateFilter("all")}
                             className="absolute -right-1 sm:-right-2 top-0 -translate-y-1/2 bg-[#E4E3F1] border border-[#E4E3F1] rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center hover:bg-[#dcdbe1]"
                           >
                             <X className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-[#3B444D]" />
@@ -1279,17 +1290,22 @@ const Returns = () => {
                     </div>
 
                     {/* Date Filter */}
-                    <div className="relative">
-                      <label className="block text-xs sm:text-sm text-[#3B444D] font-medium text-gray-700 mb-1">
+                    <div className="relative ">
+                      <label className="block text-xs sm:text-sm text-[#3B444D] font-medium text-gray-700 mb-1 ">
                         Date
                       </label>
                       <DatePicker
-                        selected={selectedDate}
-                        onChange={(date) => setSelectedDate(date)}
-                        dateFormat="dd/MM/yyyy"
-                        className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 pr-8 text-[#A8ACB7] focus:outline-none focus:bg-[#FFE5D8] focus:ring-2 focus:ring-[#575DD5] text-sm"
-                        placeholderText="Select date"
-                      />
+  selected={selectedDate}
+  onChange={(date) => setSelectedDate(date)}
+  dateFormat="dd/MM/yyyy"
+  wrapperClassName="w-full"
+  customInput={
+    <div className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 cursor-pointer text-[#A8ACB7] text-sm">
+      {selectedDate ? selectedDate.toLocaleDateString("en-GB") : "Select date"}
+    </div>
+  }
+/>
+
                       <div className="pointer-events-none absolute right-3 top-1/2 translate-y-1/4 w-[12px] h-[7px] sm:w-[14px] sm:h-[8px] bg-[#A7ACB7] clip-path-triangle"></div>
                     </div>
                   </div>
@@ -1356,11 +1372,10 @@ const Returns = () => {
                               <tr
                                 key={returnItem.id}
                                 onClick={() => handleRowClick(returnItem.id)}
-                                className={`h-[55px] xl:h-[61px] transition-all cursor-pointer ${
-                                  selectedRowId === returnItem.id
-                                    ? "bg-gray-100 shadow-lg"
-                                    : "hover:shadow-md hover:bg-gray-100"
-                                }`}
+                                className={`h-[55px] xl:h-[61px] transition-all cursor-pointer ${selectedRowId === returnItem.id
+                                  ? "bg-gray-100 shadow-lg"
+                                  : "hover:shadow-md hover:bg-gray-100"
+                                  }`}
                               >
                                 <td className="text-[11px] xl:text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-3 xl:px-4 py-3 whitespace-nowrap">
                                   {index + 1}
@@ -1414,7 +1429,7 @@ const Returns = () => {
               </div>
 
               {/* Pagination Controls - Responsive */}
-              <div className="h-auto sm:h-[55px] w-full bg-[#F5F5FA] rounded-[10px] p-4 flex flex-col sm:flex-row items-center justify-between border-t border-gray-200 gap-3 sm:gap-0 sticky bottom-0 z-10" style={{marginBottom:'100px'}}>
+              <div className="h-auto sm:h-[55px] w-full bg-[#F5F5FA] rounded-[10px] p-4 flex flex-col sm:flex-row items-center justify-between border-t border-gray-200 gap-3 sm:gap-0 sticky bottom-0 z-10" style={{ marginBottom: '100px' }}>
                 <div className="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
                   Showing <span className="font-medium">{(currentPage - 1) * 10 + 1}</span> to{' '}
                   <span className="font-medium">{Math.min(currentPage * 10, filteredReturns.length)}</span> of{' '}
@@ -1426,27 +1441,23 @@ const Returns = () => {
                   <button
                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
-                    className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-r-2 sm:border-r-4 border-gray-200 ${
-                      currentPage === 1
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-                        : "bg-white text-gray-700 hover:bg-gray-100"
-                    }`}
+                    className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-r-2 sm:border-r-4 border-gray-200 ${currentPage === 1
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                      : "bg-white text-gray-700 hover:bg-gray-100"
+                      }`}
                   >
                     <span
-                      className={`flex items-center justify-center h-[12px] w-[12px] sm:h-[14px] sm:w-[14px] rounded ${
-                        currentPage === 1 ? "bg-gray-300" : "bg-[#3F058F]"
-                      }`}
+                      className={`flex items-center justify-center h-[12px] w-[12px] sm:h-[14px] sm:w-[14px] rounded ${currentPage === 1 ? "bg-gray-300" : "bg-[#3F058F]"
+                        }`}
                     >
                       <HiArrowLeftCircle
-                        className={`h-[9px] w-[9px] sm:h-[10px] sm:w-[10px] ${
-                          currentPage === 1 ? "text-gray-500" : "text-white"
-                        }`}
+                        className={`h-[9px] w-[9px] sm:h-[10px] sm:w-[10px] ${currentPage === 1 ? "text-gray-500" : "text-white"
+                          }`}
                       />
                     </span>
                     <span
-                      className={`text-[11px] sm:text-[12px] leading-tight font-bold ${
-                        currentPage === 1 ? "text-gray-400" : "text-[#3F058F]"
-                      } hidden xs:inline`}
+                      className={`text-[11px] sm:text-[12px] leading-tight font-bold ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F]"
+                        } hidden xs:inline`}
                     >
                       Prev
                     </span>
@@ -1469,11 +1480,10 @@ const Returns = () => {
                           <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
-                            className={`w-[28px] h-[28px] sm:w-[32px] sm:h-[33px] text-xs sm:text-sm rounded-[4px] flex items-center justify-center ${
-                              currentPage === page
-                                ? "bg-[#3F058F] text-white font-semibold"
-                                : "bg-white text-[#191616] hover:bg-gray-100"
-                            }`}
+                            className={`w-[28px] h-[28px] sm:w-[32px] sm:h-[33px] text-xs sm:text-sm rounded-[4px] flex items-center justify-center ${currentPage === page
+                              ? "bg-[#3F058F] text-white font-semibold"
+                              : "bg-white text-[#191616] hover:bg-gray-100"
+                              }`}
                           >
                             {page}
                           </button>
@@ -1490,34 +1500,30 @@ const Returns = () => {
                       )
                     }
                     disabled={currentPage === Math.ceil(filteredReturns.length / 10)}
-                    className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-l-2 sm:border-l-4 border-gray-200 ${
-                      currentPage === Math.ceil(filteredReturns.length / 10)
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-                        : "bg-white text-gray-700 hover:bg-gray-100"
-                    }`}
+                    className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-l-2 sm:border-l-4 border-gray-200 ${currentPage === Math.ceil(filteredReturns.length / 10)
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                      : "bg-white text-gray-700 hover:bg-gray-100"
+                      }`}
                   >
                     <span
-                      className={`text-[11px] sm:text-[12px] leading-tight font-bold ${
-                        currentPage === Math.ceil(filteredReturns.length / 10)
-                          ? "text-gray-400"
-                          : "text-[#3F058F]"
-                      } hidden xs:inline`}
+                      className={`text-[11px] sm:text-[12px] leading-tight font-bold ${currentPage === Math.ceil(filteredReturns.length / 10)
+                        ? "text-gray-400"
+                        : "text-[#3F058F]"
+                        } hidden xs:inline`}
                     >
                       Next
                     </span>
                     <span
-                      className={`flex items-center justify-center h-[12px] w-[12px] sm:h-[14px] sm:w-[14px] rounded ${
-                        currentPage === Math.ceil(filteredReturns.length / 10)
-                          ? "bg-gray-300"
-                          : "bg-[#3F058F]"
-                      }`}
+                      className={`flex items-center justify-center h-[12px] w-[12px] sm:h-[14px] sm:w-[14px] rounded ${currentPage === Math.ceil(filteredReturns.length / 10)
+                        ? "bg-gray-300"
+                        : "bg-[#3F058F]"
+                        }`}
                     >
                       <HiArrowRightCircle
-                        className={`h-[9px] w-[9px] sm:h-[10px] sm:w-[10px] ${
-                          currentPage === Math.ceil(filteredReturns.length / 10)
-                            ? "text-gray-500"
-                            : "text-white"
-                        }`}
+                        className={`h-[9px] w-[9px] sm:h-[10px] sm:w-[10px] ${currentPage === Math.ceil(filteredReturns.length / 10)
+                          ? "text-gray-500"
+                          : "text-white"
+                          }`}
                       />
                     </span>
                   </button>

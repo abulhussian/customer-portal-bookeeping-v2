@@ -195,7 +195,7 @@ const Dashboard = () => {
                 <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
             </div>
-            <h3 className="text-xs sm:text-sm font-bold pb-2">Total Returns</h3>
+            <h3 className="text-xs sm:text-sm font-medium text-white uppercase tracking-wider">Total Returns</h3>
           </div>
 
           <div className="text-xl sm:text-2xl font-bold text-white mt-4 pl-2">
@@ -211,7 +211,7 @@ const Dashboard = () => {
                 <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
             </div>
-            <h3 className="text-xs sm:text-sm font-bold pb-2">Pending Returns</h3>
+            <h3 className="text-xs sm:text-sm font-medium text-white uppercase tracking-wider">Pending Returns</h3>
           </div>
           <div className="text-xl sm:text-2xl font-bold text-white mt-4 pl-2">{stats.pendingReturns}</div>
         </div>
@@ -224,7 +224,7 @@ const Dashboard = () => {
                 <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
             </div>
-            <h3 className="text-xs sm:text-sm font-bold pb-2">Outstanding Invoices</h3>
+            <h3 className="text-xs sm:text-sm font-medium text-white uppercase tracking-wider">Outstanding Invoices</h3>
           </div>
           <div className="text-xl sm:text-2xl font-bold text-white mt-4 pl-2">{stats.unpaidInvoices}</div>
         </div>

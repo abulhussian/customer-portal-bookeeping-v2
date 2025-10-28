@@ -597,7 +597,7 @@ export default function Invoices() {
 
           if (verificationData.status === 'ok') {
             await loadInvoices();
-            alert('Payment successful! Invoice status updated.');
+            toast.success('Payment successful! Invoice status updated.');
             resolve();
           } else {
             throw new Error('Payment verification failed');
@@ -680,10 +680,10 @@ export default function Invoices() {
 
           if (data.status === 'ok') {
             await loadInvoices(); // Refresh the invoices list
-            alert('Payment successful! Invoice status updated to Paid.');
+            toast.success('Payment successful! Invoice status updated to Paid.');
             resolve();
           } else {
-            alert('Payment verification failed. Please contact support.');
+            toast.error('Payment verification failed. Please contact support.');
             reject(new Error('Verification failed'));
           }
         } catch (error) {
@@ -702,6 +702,7 @@ export default function Invoices() {
     const rzp = new window.Razorpay(options);
     rzp.open();
   };
+
   const statusOptions = [
     { value: "all", label: "All Statuses" },
     { value: "Pending", label: "Pending" },
@@ -718,7 +719,7 @@ export default function Invoices() {
 
   return (
     <motion.div className=" flex flex-col min-h-screen ">
-<div className="max-h-[calc(100vh)] overflow-y-auto pb-24 sm:pb-8">
+      <div className="max-h-[calc(100vh)] overflow-y-auto pb-24 sm:pb-8">
         {/* View Invoice Modal */}
         {viewInvoice && (
           <div className="fixed inset-0  bg-opacity-50 backdrop-blur-sm flex flex-col items-center justify-center z-50 p-4">
@@ -831,572 +832,583 @@ export default function Invoices() {
           </div>
         )}
 
-<motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ delay: 0.3 }}
-  className="mt-4"
->
-  <div className="grid grid-cols-2 sm:grid-cols-4 xs:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-    {statusOptions.map((status) => {
-      const normalizedValue = status.value.toLowerCase();
-
-      const count =
-        normalizedValue === "all"
-          ? invoices.length
-          : invoices.filter(
-              (invoice) =>
-                invoice.status.toLowerCase() === normalizedValue
-            ).length;
-
-      const statusIcons = {
-        all: <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-white" />,
-        paid: <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-white" />,
-        pending: <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-white" />,
-      };
-
-      const statusConfig = {
-        all: {
-          borderColor: "border-[#604881]",
-          iconBg: "bg-[#604881]",
-          checkmarkBg: "bg-[#604881]",
-          image: "/Rectangle145138.svg",
-          label: "Total Transactions",
-        },
-        paid: {
-          borderColor: "border-emerald-400",
-          iconBg: "bg-teal-600 bg-opacity-80",
-          checkmarkBg: "bg-teal-500",
-          image: "/Rectangle45212.svg",
-          label: "Paid",
-        },
-        pending: {
-          borderColor: "border-[#df530a]",
-          iconBg: "bg-[#df530a]",
-          checkmarkBg: "bg-[#df530a]",
-          image: "/Rectangle145211orange.svg",
-          label: "Pending",
-        },
-      };
-
-      const config = statusConfig[normalizedValue] || {
-        borderColor: "border-gray-400",
-        iconBg: "bg-gray-600 bg-opacity-80",
-        checkmarkBg: "bg-gray-600",
-        image: "/Rectangle145138.svg",
-        label: status.label,
-      };
-
-      const IconComponent =
-        statusIcons[normalizedValue] ||
-        <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-white" />;
-
-      return (
         <motion.div
-          key={status.value}
-          whileHover={{ y: -4, scale: 1.02 }}
-          transition={{ duration: 0.2 }}
-          onClick={() =>
-            setFilterStatus(
-              status.value === filterStatus ? "all" : status.value
-            )
-          }
-          className={`relative w-full h-[142px] bg-no-repeat bg-cover shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col pt-4 pl-4 text-start rounded-[6px] first:rounded-tl-[30px] sm:first:rounded-tl-[50px] last:rounded-br-[30px] sm:last:rounded-br-[50px]`}
-          style={{ backgroundImage: `url(${config.image})` }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-4"
         >
-          {filterStatus === status.value && (
-            <div className="absolute -top-2 -right-2 z-20">
-              <div
-                className={`flex items-center justify-center rounded-full p-[6px] ${config.checkmarkBg}`}
-              >
-                <Check className="h-[18px] w-[18px] text-white" />
-              </div>
-            </div>
-          )}
+          <div className="grid grid-cols-2 sm:grid-cols-4 xs:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {statusOptions.map((status) => {
+              const normalizedValue = status.value.toLowerCase();
 
-          <div className="flex items-center gap-2 text-white w-full">
-            <div
-              className={`w-1/6 min-w-[40px] border-b-2 pb-2 ${config.borderColor}`}
-            >
-              <div
-                className={`p-1 flex justify-center items-center rounded-full ${config.iconBg}`}
-              >
-                {IconComponent}
-              </div>
-            </div>
-            <h3 className="text-xs sm:text-sm font-bold pb-2">
-              {config.label}
-            </h3>
-          </div>
+              const count =
+                normalizedValue === "all"
+                  ? invoices.length
+                  : invoices.filter(
+                    (invoice) =>
+                      invoice.status.toLowerCase() === normalizedValue
+                  ).length;
 
-          <div className="text-xl sm:text-2xl font-bold text-white mt-4 pl-2">
-            {count}
+              const statusIcons = {
+                all: <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-white" />,
+                paid: <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-white" />,
+                pending: <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-white" />,
+              };
+
+              const statusConfig = {
+                all: {
+                  borderColor: "border-[#604881]",
+                  iconBg: "bg-[#604881]",
+                  checkmarkBg: "bg-[#604881]",
+                  image: "/Rectangle145138.svg",
+                  label: "Total Transactions",
+                },
+                paid: {
+                  borderColor: "border-emerald-400",
+                  iconBg: "bg-teal-600 bg-opacity-80",
+                  checkmarkBg: "bg-teal-500",
+                  image: "/Rectangle45212.svg",
+                  label: "Paid",
+                },
+                pending: {
+                  borderColor: "border-[#df530a]",
+                  iconBg: "bg-[#df530a]",
+                  checkmarkBg: "bg-[#df530a]",
+                  image: "/Rectangle145211orange.svg",
+                  label: "Pending",
+                },
+              };
+
+              const config = statusConfig[normalizedValue] || {
+                borderColor: "border-gray-400",
+                iconBg: "bg-gray-600 bg-opacity-80",
+                checkmarkBg: "bg-gray-600",
+                image: "/Rectangle145138.svg",
+                label: status.label,
+              };
+
+              const IconComponent =
+                statusIcons[normalizedValue] ||
+                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-white" />;
+
+              return (
+                <motion.div
+                  key={status.value}
+                  whileHover={{ y: -4, scale: 1.02 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() =>
+                    setFilterStatus(
+                      status.value === filterStatus ? "all" : status.value
+                    )
+                  }
+                  className={`relative w-full h-[142px] bg-no-repeat bg-cover shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col pt-4 pl-4 text-start rounded-[6px] first:rounded-tl-[30px] sm:first:rounded-tl-[50px] last:rounded-br-[30px] sm:last:rounded-br-[50px]`}
+                  style={{ backgroundImage: `url(${config.image})` }}
+                >
+                  {filterStatus === status.value && (
+                    <div className="absolute -top-2 -right-2 z-20">
+                      <div
+                        className={`flex items-center justify-center rounded-full p-[6px] ${config.checkmarkBg}`}
+                      >
+                        <Check className="h-[18px] w-[18px] text-white" />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2 text-white w-full">
+                    <div
+                      className={`w-1/6 min-w-[40px] border-b-2 pb-2 ${config.borderColor}`}
+                    >
+                      <div
+                        className={`p-1 flex justify-center items-center rounded-full ${config.iconBg}`}
+                      >
+                        {IconComponent}
+                      </div>
+                    </div>
+                    <h3 className="text-xs sm:text-sm font-medium text-white uppercase tracking-wider">
+                      {config.label}
+                    </h3>
+                  </div>
+
+                  <div className="text-xl sm:text-2xl font-bold text-white mt-4 pl-2">
+                    {count}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </motion.div>
-      );
-    })}
-  </div>
-</motion.div>
 
-{/* Filters */}
-<motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ delay: 0.1 }}
-  className="bg-white p-2 mt-2 overflow-hidden rounded-lg shadow-sm border"
->
-  <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-    {/* Search Input */}
-    <div className="w-full">
-      <div className="relative flex flex-row border border-gray-300 p-2 items-center gap-3 w-full rounded-md">
-        {/* Search Wrapper */}
-        <div className="relative flex-1 min-h-[48px] flex items-center">
-          {/* Big Search Icon */}
-          {!isSearchActive && (
-            <img
-              src="/searchsvg-1.svg"
-              alt="search-icon"
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer z-10"
-              onClick={() => setIsSearchActive(true)}
-            />
-          )}
+        {/* Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white p-2 mt-2 overflow-hidden rounded-lg "
+        >
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+            {/* Search Input */}
+            <div className="w-full">
+              <div className="relative flex flex-row border border-gray-100 p-2 items-center gap-3 w-full rounded-md">
+                {/* Search Wrapper */}
+                <div className="relative flex-1 min-h-[48px] flex items-center">
+                  {/* Big Search Icon */}
+                  {!isSearchActive && (
+                    <img
+                      src="/searchsvg-1.svg"
+                      alt="search-icon"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-[36px] h-[36px] cursor-pointer z-10"
+                      onClick={() => setIsSearchActive(true)}
+                    />
+                  )}
 
-          {/* Active Search */}
-          {isSearchActive && (
-            <>
-              <img
-                src="/search-icon-2.svg"
-                alt="search-icon"
-                className="w-[17px] h-[17px] absolute left-3 top-1/2 -translate-y-1/2 z-10"
-              />
-              <input
-                type="text"
-                placeholder="Search returns by ID, type, status, or name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-10 py-2 w-full rounded-md border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-              />
-              <button
-                onClick={() => setIsSearchActive(false)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 z-10"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </>
-          )}
-        </div>
+                  {/* Active Search */}
+                  {isSearchActive && (
+                    <>
+                      <div className="w-4/5 relative">
+                        <img
+                          src="/search-icon-2.svg"
+                          alt="search-icon"
+                          className="w-[17px] h-[17px] absolute left-3 top-1/2 -translate-y-1/2 z-10"
+                        />
 
-        {/* Filter Button */}
-        {!isSearchActive && (
-          <button
-            onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
-            className="flex items-center justify-center gap-2 w-[120px] h-[42px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-lg transition-colors hover:bg-gray-200 relative px-3 py-2 "
-          >
-            <img src="/filter-icon.png" alt="filter icon" className="w-[20px] h-[20px]" />
-            <span className="hidden sm:inline text-gray-700 text-sm font-medium">Filters</span>
-          </button>
-        )}
-      </div>
+                        <input
+                          type="text"
+                          placeholder="Search returns by ID, type, status, or name..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-10 pr-10 py-2 w-full rounded-md border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        />
+                        <button
+                          onClick={() => setIsSearchActive(false)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 z-10"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
 
-      {/* Active Filters Display */}
-      {!isSearchActive && (filterStatus !== "all" || dateFilter !== "all") && (
-        <div className="flex flex-wrap gap-2 mt-2">
-          <div className="pr-2 border-r-2 pl-2 flex items-center gap-2">
-            <h1 className="text-[#9398A5] text-left font-medium text-[12px] leading-[14px] font-inter">
-              Applied Filters
-            </h1>
-            <button
-              onClick={clearAllFilters}
-              className="text-[#FC6719] font-medium text-[13px] leading-[14px] font-inter transition-colors hover:text-[#E65C00]"
-            >
-              Clear all
-            </button>
+                {/* Filter Button */}
+                {!isSearchActive && (
+                  <button
+                    onClick={handleOpenFilterModal}
+                    className="relative flex items-center justify-center gap-2 w-[120px] h-[42px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-lg transition-colors hover:bg-gray-200 px-3 py-2"
+                  >
+                    <img src="/filter-icon.png" alt="filter icon" className="w-[20px] h-[20px]" />
+                    <span className="hidden sm:inline text-gray-700 text-sm font-medium">Filters</span>
+
+                    {/* 🔹 Applied Filters Count Badge */}
+                    {(filterStatus !== "all" || dateFilter) && (
+                      <span className="w-[19px] h-[19px] bg-[#E4E3F1] border border-[#E4E3F1] opacity-100 rounded-full flex items-center justify-center text-[#615376]">
+                        {[
+                          filterStatus !== "all" ? 1 : 0,
+                          dateFilter ? 1 : 0
+                        ].filter(Boolean).reduce((a, b) => a + b, 0)}
+                      </span>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {/* Active Filters Display */}
+              {!isSearchActive && (filterStatus !== "all" || dateFilter) && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  <div className="pr-2 border-r-2 pl-2 flex flex-col items-start gap-2">
+                    <h1 className="text-[#9398A5] text-left font-medium text-[12px] leading-[14px] font-inter">
+                      Applied Filters
+                    </h1>
+                    <button
+                      onClick={clearAllFilters}
+                      className="text-[#FC6719] font-medium text-[13px] leading-[14px] font-inter transition-colors hover:text-[#E65C00]"
+                    >
+                      Clear all
+                    </button>
+                  </div>
+
+                  {/* Status Filter Tag */}
+                  {filterStatus && filterStatus !== "all" && (
+                    <div className="mt-2 w-[172px] h-[46px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[6px] px-3 py-1 flex items-center justify-between relative">
+                      <div className="flex flex-col justify-center">
+                        <span className="text-[#9398A5] font-medium text-[10px] uppercase font-inter">
+                          Status:
+                        </span>
+                        <span className="text-[#3B444D] font-medium text-[12px] capitalize font-inter">
+                          {statusOptions.find(opt => opt.value === filterStatus)?.label}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setFilterStatus("all")}
+                        className="absolute -right-2 top-0 -translate-y-1/2 bg-[#E4E3F1] rounded-full h-5 w-5 flex items-center justify-center hover:bg-[#dcdbe1]"
+                      >
+                        <img src="/cancel-btn.svg" alt="cancel-btn" className="w-[19px] h-[19px]" />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Date Filter Tag */}
+                  {dateFilter && (
+                    <div className="mt-2 w-[172px] h-[46px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[6px] px-3 py-1 flex items-center justify-between relative">
+                      <div className="flex flex-col justify-center">
+                        <span className="text-[#9398A5] font-medium text-[10px] uppercase font-inter">
+                          Date:
+                        </span>
+                        <span className="text-[#3B444D] font-medium text-[12px] capitalize font-inter">
+                          {formatDateForDisplay(dateFilter)}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setDateFilter(null)}
+                        className="absolute -right-2 top-0 -translate-y-1/2 bg-[#E4E3F1] rounded-full h-5 w-5 flex items-center justify-center hover:bg-[#dcdbe1]"
+                      >
+                        <img src="/cancel-btn.svg" alt="cancel-btn" className="w-[19px] h-[19px]" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Status Filter Tag */}
-          {filterStatus && filterStatus !== "all" && (
-            <div className="mt-2 w-[172px] h-[46px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[6px] px-3 py-1 flex items-center justify-between relative">
-              <div className="flex flex-col justify-center">
-                <span className="text-[#9398A5] font-medium text-[10px] uppercase font-inter">
-                  Status:
-                </span>
-                <span className="text-[#3B444D] font-medium text-[12px] capitalize font-inter">
-                  {statusOptions.find(opt => opt.value === filterStatus)?.label}
-                </span>
-              </div>
-              <button
-                onClick={() => setFilterStatus("all")}
-                className="absolute -right-2 top-0 -translate-y-1/2 bg-[#E4E3F1] rounded-full h-5 w-5 flex items-center justify-center hover:bg-[#dcdbe1]"
+          {/* Filter Modal */}
+          {isFilterModalOpen && (
+            <div className="fixed inset-0 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
               >
-                <img src="/cancel-btn.svg" alt="cancel-btn" className="w-[19px] h-[19px]" />
-              </button>
+                <div className="relative flex items-center justify-center mb-4">
+                  <h3 className="text-[#191616] font-medium text-[24px] leading-[29px] capitalize">
+                    Filters
+                  </h3>
+                  <button
+                    onClick={() => setIsFilterModalOpen(false)}
+                    className="absolute top-1 right-1 flex justify-center items-center bg-[#F5F5FA] rounded-full w-[30px] h-[30px] hover:text-gray-600 transition-colors"
+                  >
+                    <img src="/cancel-filter.svg" alt="cancel-img" className="h-[12px] w-[12px]" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Status Filter */}
+                  <div className="relative">
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Filter by Status
+                    </label>
+                    <select
+                      value={tempFilterStatus}
+                      onChange={(e) => setTempFilterStatus(e.target.value)}
+                      className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 pr-8 appearance-none focus:white focus:ring-blue-500 focus:border-blue-500 text-[#A8ACB7]"
+                    >
+                      {statusOptions.map((status) => (
+                        <option key={status.value} value={status.value}>
+                          {status.label}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute right-3 top-1/2 translate-y-1/2 w-[14px] h-[8px] bg-[#A7ACB7] opacity-100 clip-path-triangle"></div>
+                  </div>
+
+                  {/* Date Filter - Updated to DatePicker */}
+                  <div className="relative">
+                    <label className="block text-sm text-[#3B444D] font-medium mb-1">Date</label>
+                    <DatePicker
+                      selected={tempDateFilter}
+                      onChange={(date) => setTempDateFilter(date)}
+                      dateFormat="dd/MM/yyyy"
+                      placeholderText="Select date"
+                      className="w-full bg-[#F7F8FC] rounded-md px-3 py-2 pr-8 focus:outline-none focus:bg-[#FFE5D8] focus:ring-blue-500"
+                      calendarClassName="shadow-lg border border-gray-200 rounded-lg"
+                      wrapperClassName="w-full"
+                      customInput={
+    <button
+      type="button"
+      className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 text-left text-[#A8ACB7] focus:outline-none"
+    >
+      {tempDateFilter
+        ? tempDateFilter.toLocaleDateString("en-GB")
+        : "Select date"}
+    </button>
+  }
+                    />
+                    {/* Adjust top position for DatePicker arrow */}
+                    <div className="pointer-events-none absolute right-3 top-[60%] translate-y-1/2 w-[14px] h-[8px] bg-[#A7ACB7] opacity-100 clip-path-triangle"></div>
+                  </div>
+                </div>
+
+                <div className="flex justify-center items-center w-full space-x-3 p-4 sm:p-6 pt-2">
+                  <button
+                    onClick={applyFilters}
+                    className="w-full h-[44px] sm:h-[50px] text-white font-medium text-[13px] sm:text-[14px] rounded-[10px] bg-gradient-to-l from-[#66A4E4] to-[#575DD5] hover:opacity-90 transition-all duration-300"
+                  >
+                    Apply Filters
+                  </button>
+                </div>
+              </motion.div>
             </div>
           )}
-
-          {/* Date Filter Tag */}
-          {dateFilter && dateFilter !== "all" && (
-            <div className="mt-2 w-[172px] h-[46px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[6px] px-3 py-1 flex items-center justify-between relative">
-              <div className="flex flex-col justify-center">
-                <span className="text-[#9398A5] font-medium text-[10px] uppercase font-inter">
-                  Date:
-                </span>
-                <span className="text-[#3B444D] font-medium text-[12px] capitalize font-inter">
-                  {dateOptions.find(opt => opt.value === dateFilter)?.label}
-                </span>
-              </div>
-              <button
-                onClick={() => setDateFilter("all")}
-                className="absolute -right-2 top-0 -translate-y-1/2 bg-[#E4E3F1] rounded-full h-5 w-5 flex items-center justify-center hover:bg-[#dcdbe1]"
-              >
-                <img src="/cancel-btn.svg" alt="cancel-btn" className="w-[19px] h-[19px]" />
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  </div>
-
-  {/* Filter Modal */}
-  {isFilterModalOpen && (
-    <div className="fixed inset-0 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md"
-      >
-        <div className="relative flex items-center justify-center mb-4">
-          <h3 className="text-[#191616] font-medium text-[24px] leading-[29px] capitalize">
-            Filters
-          </h3>
-          <button
-            onClick={() => setIsFilterModalOpen(false)}
-            className="absolute top-1 right-1 flex justify-center items-center bg-[#F5F5FA] rounded-full w-[30px] h-[30px] hover:text-gray-600 transition-colors"
-          >
-            <img src="/cancel-filter.svg" alt="cancel-img" className="h-[12px] w-[12px]" />
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          {/* Status Filter */}
-          <div className="relative">
-            <label className="text-sm font-medium text-gray-700 mb-2 block">
-              Filter by Status
-            </label>
-            <select
-              value={tempFilterStatus}
-              onChange={(e) => setTempFilterStatus(e.target.value)}
-              className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 pr-8 appearance-none focus:white focus:ring-blue-500 focus:border-blue-500 text-[#A8ACB7]"
-            >
-              {statusOptions.map((status) => (
-                <option key={status.value} value={status.value}>
-                  {status.label}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute right-3 top-1/2 translate-y-1/2 w-[14px] h-[8px] bg-[#A7ACB7] opacity-100 clip-path-triangle"></div>
-          </div>
-
-          {/* Date Filter */}
-          <div className="relative">
-            <label className="block text-sm text-[#3B444D] font-medium mb-1">Date</label>
-            <select
-              value={tempDateFilter}
-              onChange={(e) => setTempDateFilter(e.target.value)}
-              className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 pr-8 appearance-none focus:white focus:ring-blue-500 focus:border-blue-500 text-[#A8ACB7]"
-            >
-              {dateOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute right-3 top-1/2 translate-y-1/2 w-[14px] h-[8px] bg-[#A7ACB7] opacity-100 clip-path-triangle"></div>
-          </div>
-        </div>
-
-        <div className="mt-6 flex justify-end space-x-3">
-          <button
-            onClick={() => {
-              setTempFilterStatus("all");
-              setTempDateFilter("all");
-              setIsFilterModalOpen(false);
-            }}
-            className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
-          >
-            Clear All
-          </button>
-          <button
-            onClick={applyFilters}
-            className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
-          >
-            Apply Filters
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  )}
-</motion.div>
+        </motion.div>
 
 
 
         {/* Invoices Table */}
-<motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ delay: 0.2 }}
-  className="bg-white rounded-lg shadow-sm border overflow-hidden my-6"
->
-  {/* Scrollable Table */}
-  <div
-    className="overflow-x-auto"
-    style={{ scrollbarWidth: "thin", scrollbarColor: "#cbd5e1 transparent" }}
-  >
-    {filteredInvoices.length === 0 ? (
-      <div className="p-8 sm:p-12 text-center">
-        <div className="text-4xl sm:text-6xl mb-4">📝</div>
-        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
-          No Invoices Found
-        </h3>
-        <p className="text-sm sm:text-base text-gray-600 max-w-md mx-auto">
-          {searchTerm
-            ? "Try adjusting your search criteria."
-            : filterStatus !== "all" && dateFilter
-            ? `No ${filterStatus.toLowerCase()} invoices found for the selected date.`
-            : filterStatus !== "all"
-            ? `No ${filterStatus.toLowerCase()} invoices found.`
-            : dateFilter
-            ? "No invoices found for the selected date."
-            : "No invoices available."}
-        </p>
-      </div>
-    ) : (
-      <div className="min-w-[800px]">
-        <table className="w-full divide-y divide-gray-200">
-          <thead className="bg-[#F6F5FA] rounded-[10px] opacity-100 h-[50px] sticky top-0 z-10">
-            <tr>
-              {[
-                "SN.NO",
-                "Customer",
-                "Return",
-                "Amount",
-                "Status",
-                "Created",
-                "Due Date",
-                "Actions",
-              ].map((header) => (
-                <th
-                  key={header}
-                  className="text-left text-[12px] leading-[20px] font-medium text-[#3B444D] px-4 py-3 uppercase tracking-wider align-middle whitespace-nowrap"
-                >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-lg shadow-sm border overflow-hidden my-4"
+        >
+          {/* Scrollable Table */}
+          <div
+            className="overflow-x-auto"
+            style={{ scrollbarWidth: "thin", scrollbarColor: "#cbd5e1 transparent" }}
+          >
+            {filteredInvoices.length === 0 ? (
+              <div className="p-8 sm:p-12 text-center">
+                <div className="text-4xl sm:text-6xl mb-4">📝</div>
+                <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
+                  No Invoices Found
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 max-w-md mx-auto">
+                  {searchTerm
+                    ? "Try adjusting your search criteria."
+                    : filterStatus !== "all" && dateFilter
+                      ? `No ${filterStatus.toLowerCase()} invoices found for the selected date.`
+                      : filterStatus !== "all"
+                        ? `No ${filterStatus.toLowerCase()} invoices found.`
+                        : dateFilter
+                          ? "No invoices found for the selected date."
+                          : "No invoices available."}
+                </p>
+              </div>
+            ) : (
+              <div className="min-w-[800px]">
+                <table className="w-full divide-y divide-gray-200">
+                  <thead className="bg-[#F6F5FA] rounded-[10px] opacity-100 h-[50px] sticky top-0 z-10">
+                    <tr>
+                      {[
+                        "SN.NO",
+                        "Customer",
+                        "Return",
+                        "Amount",
+                        "Status",
+                        "Created",
+                        "Due Date",
+                        "Actions",
+                      ].map((header) => (
+                        <th
+                          key={header}
+                          className="text-left text-[12px] leading-[20px] font-medium text-[#3B444D] px-4 py-3 uppercase tracking-wider align-middle whitespace-nowrap"
+                        >
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
 
-          <tbody className="bg-white divide-y divide-gray-200">
-            {currentRows.map((invoice, index) => (
-              <motion.tr
-                key={invoice.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                onClick={() => setSelectedRowId(invoice.id)}
-                className={`h-[61px] bg-white rounded-[8px] opacity-100 transition-all cursor-pointer ${
-                  selectedRowId === invoice.id
-                    ? "bg-indigo-50 shadow-lg"
-                    : "hover:bg-gray-50 hover:shadow-md"
-                }`}
-              >
-                {/* SN.NO */}
-                <td className="text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-4 py-3 whitespace-nowrap">
-                  {indexOfFirstRow + index + 1}
-                </td>
-
-                {/* Customer */}
-                <td className="px-2 py-3 text-left whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{invoice.customerName}</div>
-                  <div className="text-xs text-gray-500">ID: {invoice.customerId}</div>
-                </td>
-
-                {/* Return */}
-                <td className="px-4 py-3 text-left whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{invoice.returnName}</div>
-                  <div className="text-xs text-gray-500">{invoice.returnType}</div>
-                </td>
-
-                {/* Amount */}
-                <td className="px-4 py-3 text-left whitespace-nowrap">
-                  <span className="w-auto font-inter font-bold text-[14px] leading-[16px] text-[#191616] opacity-100">
-                    ${invoice.invoiceAmount.toFixed(2)} USD
-                  </span>
-                </td>
-
-                {/* Status */}
-                <td className="px-4 py-3 text-left whitespace-nowrap">
-                  <span
-                    className={`inline-flex justify-center items-center w-[84px] h-[24px] rounded-[6px] text-white text-xs uppercase font-semibold opacity-100 ${getStatusColor(
-                      invoice.status
-                    )}`}
-                  >
-                    {invoice.status}
-                  </span>
-                </td>
-
-                {/* Created */}
-                <td className="px-4 py-3 text-left whitespace-nowrap text-[12px] leading-[16px] text-[#191616] font-inter">
-                  {formatDate(invoice.createdAt)}
-                </td>
-
-                {/* Due Date */}
-                <td className="px-4 py-3 text-left whitespace-nowrap text-[12px] leading-[16px] text-[#191616] font-inter">
-                  {formatDate(invoice.dueDate)}
-                </td>
-
-                {/* Actions */}
-                <td className="px-4 py-3 text-left whitespace-nowrap">
-                  <div className="flex items-center justify-start space-x-2">
-                    {/* View */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewInvoice(invoice);
-                      }}
-                      className="text-blue-600 hover:text-blue-700 transition-colors"
-                      title="View Invoice"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-
-                    {/* Download */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDownloadInvoice(invoice);
-                      }}
-                      disabled={isDownloading}
-                      className="text-green-600 hover:text-green-700 transition-colors disabled:opacity-50"
-                      title="Download Invoice"
-                    >
-                      {isDownloading ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
-                      ) : (
-                        <Download className="w-4 h-4" />
-                      )}
-                    </button>
-
-                    {/* Pay / Completed */}
-                    {invoice.status.toLowerCase() === "pending" ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          payNow(invoice);
-                        }}
-                        disabled={isPaying && payingInvoiceId === invoice.id}
-                        className="text-purple-600 hover:text-purple-700 transition-colors disabled:opacity-50"
-                        title="Pay Invoice"
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {currentRows.map((invoice, index) => (
+                      <motion.tr
+                        key={invoice.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        onClick={() => setSelectedRowId(invoice.id)}
+                        className={`h-[61px] bg-white rounded-[8px] opacity-100 transition-all cursor-pointer ${selectedRowId === invoice.id
+                            ? "bg-indigo-50 shadow-lg"
+                            : "hover:bg-gray-50 hover:shadow-md"
+                          }`}
                       >
-                        {isPaying && payingInvoiceId === invoice.id ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
-                        ) : (
-                          <CreditCard className="w-4 h-4" />
-                        )}
-                      </button>
-                    ) : (
-                      <div className="text-green-600" title="Payment Completed">
-                        <CheckCircle className="w-4 h-4" />
-                      </div>
-                    )}
-                  </div>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )}
-  </div>
+                        {/* SN.NO */}
+                        <td className="text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-4 py-3 whitespace-nowrap">
+                          {indexOfFirstRow + index + 1}
+                        </td>
 
-  {/* ✅ Pagination Moved Below */}
-  {filteredInvoices.length > 0 && (
-    <div className="w-full bg-[#F5F5FA] rounded-[10px] px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between border-t border-gray-200 mt-4">
-      <p className="text-sm text-gray-700 text-center sm:text-left mb-2 sm:mb-0">
-        Showing <span className="font-medium">{indexOfFirstRow + 1}</span> to{" "}
-        <span className="font-medium">{Math.min(indexOfLastRow, filteredInvoices.length)}</span> of{" "}
-        <span className="font-medium">{filteredInvoices.length}</span> results
-      </p>
+                        {/* Customer */}
+                        <td className="px-2 py-3 text-left whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{invoice.customerName}</div>
+                          <div className="text-xs text-gray-500">ID: {invoice.customerId}</div>
+                        </td>
 
-      <nav
-        className="flex items-center justify-center sm:justify-end flex-wrap gap-2 w-full sm:w-auto"
-        aria-label="Pagination"
-      >
-        {/* Previous Button */}
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className={`flex items-center gap-1 px-3 py-1 text-sm rounded-[4px] border transition-colors
-            ${currentPage === 1
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-              : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-        >
-          <HiArrowLeftCircle
-            className={`h-[14px] w-[14px] ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F]"}`}
-          />
-          <span className="font-bold text-[#3F058F] text-xs sm:text-sm">Prev</span>
-        </button>
+                        {/* Return */}
+                        <td className="px-4 py-3 text-left whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{invoice.returnName}</div>
+                          <div className="text-xs text-gray-500">{invoice.returnType}</div>
+                        </td>
 
-        {/* Page Numbers */}
-        {(() => {
-          const totalPages = Math.ceil(filteredInvoices.length / rowsPerPage);
-          const visiblePages = 5;
-          let startPage = Math.max(1, currentPage - 2);
-          let endPage = Math.min(totalPages, startPage + visiblePages - 1);
-          if (endPage - startPage < visiblePages - 1) {
-            startPage = Math.max(1, endPage - visiblePages + 1);
-          }
-          return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
-            (page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-[32px] h-[32px] text-sm rounded-[4px] flex items-center justify-center border
-                  ${currentPage === page
-                    ? "bg-[#3F058F] text-white font-semibold"
-                    : "bg-white text-[#191616] hover:bg-gray-100"
-                  }`}
+                        {/* Amount */}
+                        <td className="px-4 py-3 text-left whitespace-nowrap">
+                          <span className="w-auto font-inter font-bold text-[14px] leading-[16px] text-[#191616] opacity-100">
+                            ${invoice.invoiceAmount.toFixed(2)} USD
+                          </span>
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-4 py-3 text-left whitespace-nowrap">
+                          <span
+                            className={`inline-flex justify-center items-center w-[84px] h-[24px] rounded-[6px] text-white text-xs uppercase font-semibold opacity-100 ${getStatusColor(
+                              invoice.status
+                            )}`}
+                          >
+                            {invoice.status}
+                          </span>
+                        </td>
+
+                        {/* Created */}
+                        <td className="px-4 py-3 text-left whitespace-nowrap text-[12px] leading-[16px] text-[#191616] font-inter">
+                          {formatDate(invoice.createdAt)}
+                        </td>
+
+                        {/* Due Date */}
+                        <td className="px-4 py-3 text-left whitespace-nowrap text-[12px] leading-[16px] text-[#191616] font-inter">
+                          {formatDate(invoice.dueDate)}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="px-4 py-3 text-left whitespace-nowrap">
+                          <div className="flex items-center justify-start space-x-2">
+                            {/* View */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewInvoice(invoice);
+                              }}
+                              className="text-blue-600 hover:text-blue-700 transition-colors"
+                              title="View Invoice"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+
+                            {/* Download */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDownloadInvoice(invoice);
+                              }}
+                              disabled={isDownloading}
+                              className="text-green-600 hover:text-green-700 transition-colors disabled:opacity-50"
+                              title="Download Invoice"
+                            >
+                              {isDownloading ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600"></div>
+                              ) : (
+                                <Download className="w-4 h-4" />
+                              )}
+                            </button>
+
+                            {/* Pay / Completed */}
+                            {invoice.status.toLowerCase() === "pending" ? (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  payNow(invoice);
+                                }}
+                                disabled={isPaying && payingInvoiceId === invoice.id}
+                                className="text-purple-600 hover:text-purple-700 transition-colors disabled:opacity-50"
+                                title="Pay Invoice"
+                              >
+                                {isPaying && payingInvoiceId === invoice.id ? (
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                                ) : (
+                                  <CreditCard className="w-4 h-4" />
+                                )}
+                              </button>
+                            ) : (
+                              <div className="text-green-600" title="Payment Completed">
+                                <CheckCircle className="w-4 h-4" />
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* ✅ Pagination Moved Below */}
+          {filteredInvoices.length > 0 && (
+            <div className="w-full bg-[#F5F5FA] rounded-[10px] px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between border-t border-gray-200 mt-4">
+              <p className="text-sm text-gray-700 text-center sm:text-left mb-2 sm:mb-0">
+                Showing <span className="font-medium">{indexOfFirstRow + 1}</span> to{" "}
+                <span className="font-medium">{Math.min(indexOfLastRow, filteredInvoices.length)}</span> of{" "}
+                <span className="font-medium">{filteredInvoices.length}</span> results
+              </p>
+
+              <nav
+                className="flex items-center justify-center sm:justify-end flex-wrap gap-2 w-full sm:w-auto"
+                aria-label="Pagination"
               >
-                {page}
-              </button>
-            )
-          );
-        })()}
+                {/* Previous Button */}
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className={`flex items-center gap-1 px-3 py-1 text-sm rounded-[4px] border transition-colors
+            ${currentPage === 1
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                      : "bg-white text-gray-700 hover:bg-gray-100"
+                    }`}
+                >
+                  <HiArrowLeftCircle
+                    className={`h-[14px] w-[14px] ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F]"}`}
+                  />
+                  <span className="font-bold text-[#3F058F] text-xs sm:text-sm">Prev</span>
+                </button>
 
-        {/* Next Button */}
-        <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(filteredInvoices.length / rowsPerPage)))
-          }
-          disabled={currentPage === Math.ceil(filteredInvoices.length / rowsPerPage)}
-          className={`flex items-center gap-1 px-3 py-1 text-sm rounded-[4px] border transition-colors
+                {/* Page Numbers */}
+                {(() => {
+                  const totalPages = Math.ceil(filteredInvoices.length / rowsPerPage);
+                  const visiblePages = 5;
+                  let startPage = Math.max(1, currentPage - 2);
+                  let endPage = Math.min(totalPages, startPage + visiblePages - 1);
+                  if (endPage - startPage < visiblePages - 1) {
+                    startPage = Math.max(1, endPage - visiblePages + 1);
+                  }
+                  return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
+                    (page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-[32px] h-[32px] text-sm rounded-[4px] flex items-center justify-center border
+                  ${currentPage === page
+                            ? "bg-[#3F058F] text-white font-semibold"
+                            : "bg-white text-[#191616] hover:bg-gray-100"
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    )
+                  );
+                })()}
+
+                {/* Next Button */}
+                <button
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(filteredInvoices.length / rowsPerPage)))
+                  }
+                  disabled={currentPage === Math.ceil(filteredInvoices.length / rowsPerPage)}
+                  className={`flex items-center gap-1 px-3 py-1 text-sm rounded-[4px] border transition-colors
             ${currentPage === Math.ceil(filteredInvoices.length / rowsPerPage)
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-              : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-        >
-          <span className="font-bold text-[#3F058F] text-xs sm:text-sm">Next</span>
-          <HiArrowRightCircle
-            className={`h-[14px] w-[14px] ${currentPage === Math.ceil(filteredInvoices.length / rowsPerPage)
-              ? "text-gray-400"
-              : "text-[#3F058F]"
-            }`}
-          />
-        </button>
-      </nav>
-    </div>
-  )}
-</motion.div>
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                      : "bg-white text-gray-700 hover:bg-gray-100"
+                    }`}
+                >
+                  <span className="font-bold text-[#3F058F] text-xs sm:text-sm">Next</span>
+                  <HiArrowRightCircle
+                    className={`h-[14px] w-[14px] ${currentPage === Math.ceil(filteredInvoices.length / rowsPerPage)
+                      ? "text-gray-400"
+                      : "text-[#3F058F]"
+                      }`}
+                  />
+                </button>
+              </nav>
+            </div>
+          )}
+        </motion.div>
 
 
       </div>
