@@ -295,18 +295,18 @@ const Login = () => {
               <TabsList className="grid w-full grid-cols-2 bg-gray-100">
                 <TabsTrigger
                   value="email"
-                  className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  className="flex items-center gap-2 data-[state=active]:bg-[linear-gradient(257deg,_#5EA1F8_0%,_#4486D9_100%)] data-[state=active]:text-primary-foreground"
                 >
                   <Mail className="w-4 h-4" />
                   Email
                 </TabsTrigger>
-                <TabsTrigger
+                {/* <TabsTrigger
                   value="mobile"
                   className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                 >
                   <Phone className="w-4 h-4" />
                   Mobile
-                </TabsTrigger>
+                </TabsTrigger> */}
               </TabsList>
 
               <TabsContent value="email" className="space-y-4">
@@ -353,7 +353,7 @@ const Login = () => {
                         </button>
                       </div>
                     </div>
-                    <Button type="submit" className="w-full" disabled={loading}>
+                    <Button type="submit" className="w-full bg-[linear-gradient(257deg,_#5EA1F8_0%,_#4486D9_100%)]" disabled={loading}>
                       {loading ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -404,7 +404,7 @@ const Login = () => {
                       <Button type="button" variant="outline" onClick={resetForm} className="flex-1 bg-transparent" disabled={loading}>
                         Back
                       </Button>
-                      <Button type="submit" className="flex-1" disabled={loading}>
+                      <Button type="submit" className="flex-1 bg-[linear-gradient(257deg,_#5EA1F8_0%,_#4486D9_100%)]" disabled={loading}>
                         {loading ? (
                           <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
