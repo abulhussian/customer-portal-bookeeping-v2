@@ -1,12 +1,14 @@
 "use client";
-import { useState } from "react";
-import { Plus, Edit, Trash2, X, FileText, Eye, MoreVertical } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, Edit, Trash2, X, FileText, Eye, MoreVertical, Hash } from "lucide-react";
 import { HiArrowLeftCircle, HiArrowRightCircle } from "react-icons/hi2";
 import { useFilterModal } from "@/src/components/DashboardLayout";
+import AddAccountModal from "../../../../../src/components/AddAccountModal.jsx";
+import { BASE_URL } from "@/src/components/BaseUrl.jsx";
 
 export default function ChartOfAccounts() {
-    const { isFilterModalOpen, setIsFilterModalOpen } = useFilterModal();
-  
+  const { isFilterModalOpen, setIsFilterModalOpen } = useFilterModal();
+  const { uid } = JSON.parse(localStorage.getItem("userProfile"));
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [typeFilter, setTypeFilter] = useState('all');
@@ -15,21 +17,55 @@ export default function ChartOfAccounts() {
   const [tempCategoryFilter, setTempCategoryFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRowId, setSelectedRowId] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [accounts, setAccounts] = useState([]);
+  const [isViewData, setIsViewData] = useState([]);
+  
+  const itemsPerPage = 10;
 
-  const accounts = [
-    { id: "1000", name: "Cash", type: "Asset", category: "Current Assets", balance: "$25,000", documentCount: 3, lastUpdated: "2024-01-15" },
-    { id: "1100", name: "Accounts Receivable", type: "Asset", category: "Current Assets", balance: "$12,500", documentCount: 5, lastUpdated: "2024-01-14" },
-    { id: "1200", name: "Inventory", type: "Asset", category: "Current Assets", balance: "$8,750", documentCount: 2, lastUpdated: "2024-01-13" },
-    { id: "1500", name: "Equipment", type: "Asset", category: "Fixed Assets", balance: "$45,000", documentCount: 1, lastUpdated: "2024-01-12" },
-    { id: "2000", name: "Accounts Payable", type: "Liability", category: "Current Liabilities", balance: "$7,200", documentCount: 4, lastUpdated: "2024-01-11" },
-    { id: "2100", name: "Credit Card", type: "Liability", category: "Current Liabilities", balance: "$3,400", documentCount: 2, lastUpdated: "2024-01-10" },
-    { id: "3000", name: "Owner's Equity", type: "Equity", category: "Equity", balance: "$80,650", documentCount: 1, lastUpdated: "2024-01-09" },
-    { id: "4000", name: "Sales Revenue", type: "Revenue", category: "Income", balance: "$125,000", documentCount: 8, lastUpdated: "2024-01-08" },
-    { id: "5000", name: "Cost of Goods Sold", type: "Expense", category: "Cost of Sales", balance: "$45,000", documentCount: 6, lastUpdated: "2024-01-07" },
-    { id: "6000", name: "Rent Expense", type: "Expense", category: "Operating Expenses", balance: "$12,000", documentCount: 1, lastUpdated: "2024-01-06" },
-    { id: "6100", name: "Utilities Expense", type: "Expense", category: "Operating Expenses", balance: "$2,500", documentCount: 3, lastUpdated: "2024-01-05" },
-    { id: "6200", name: "Salary Expense", type: "Expense", category: "Operating Expenses", balance: "$25,000", documentCount: 7, lastUpdated: "2024-01-04" },
-  ];
+
+  // const accounts = [
+  //   { id: "1000", name: "Cash", type: "Asset", category: "Current Assets", balance: "$25,000", documentCount: 3, lastUpdated: "2024-01-15" },
+  //   { id: "1100", name: "Accounts Receivable", type: "Asset", category: "Current Assets", balance: "$12,500", documentCount: 5, lastUpdated: "2024-01-14" },
+  //   { id: "1200", name: "Inventory", type: "Asset", category: "Current Assets", balance: "$8,750", documentCount: 2, lastUpdated: "2024-01-13" },
+  //   { id: "1500", name: "Equipment", type: "Asset", category: "Fixed Assets", balance: "$45,000", documentCount: 1, lastUpdated: "2024-01-12" },
+  //   { id: "2000", name: "Accounts Payable", type: "Liability", category: "Current Liabilities", balance: "$7,200", documentCount: 4, lastUpdated: "2024-01-11" },
+  //   { id: "2100", name: "Credit Card", type: "Liability", category: "Current Liabilities", balance: "$3,400", documentCount: 2, lastUpdated: "2024-01-10" },
+  //   { id: "3000", name: "Owner's Equity", type: "Equity", category: "Equity", balance: "$80,650", documentCount: 1, lastUpdated: "2024-01-09" },
+  //   { id: "4000", name: "Sales Revenue", type: "Revenue", category: "Income", balance: "$125,000", documentCount: 8, lastUpdated: "2024-01-08" },
+  //   { id: "5000", name: "Cost of Goods Sold", type: "Expense", category: "Cost of Sales", balance: "$45,000", documentCount: 6, lastUpdated: "2024-01-07" },
+  //   { id: "6000", name: "Rent Expense", type: "Expense", category: "Operating Expenses", balance: "$12,000", documentCount: 1, lastUpdated: "2024-01-06" },
+  //   { id: "6100", name: "Utilities Expense", type: "Expense", category: "Operating Expenses", balance: "$2,500", documentCount: 3, lastUpdated: "2024-01-05" },
+  //   { id: "6200", name: "Salary Expense", type: "Expense", category: "Operating Expenses", balance: "$25,000", documentCount: 7, lastUpdated: "2024-01-04" },
+  // ];
+
+
+  const handleSaveAccount = () => {
+    getAccounts();
+  }
+
+  const handleViewModal = async ( account) => {
+    // const response = await fetch(`http://192.168.1.5:3001/api/book-keeping/get-company/${selectedRowId}`, {
+    //   method: 'GET',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    // });
+
+console.log("account in handle view", account);
+    // const data = await response.json();
+    setIsViewData(account);
+    // setSelectedRowId(selectedRowId);
+    setIsViewModalOpen(true);
+
+  }
+
+  const handleUpdateModal = (account) => {
+    setIsUpdateModalOpen(true);
+    setIsViewData(account);
+  };
 
   // Handler functions
   const handleCloseSearch = () => {
@@ -51,62 +87,115 @@ export default function ChartOfAccounts() {
     setTempCategoryFilter('all');
   };
 
+  useEffect(() => {
+    getAccounts();
+  }, []);
+
   const handleRowClick = (id) => {
     setSelectedRowId(id === selectedRowId ? null : id);
   };
 
+
+
+  const getAccounts = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/book-keeping/get-all-accounts/${uid}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log(" get accounts response", response.data);
+
+      const data = await response.json();
+
+
+      setAccounts(data)
+      console.log("accounts", data);
+      setAccounts(Array.isArray(data) ? data : []);
+
+
+    } catch (error) {
+      console.error("Error fetching accounts:", error);
+    }
+  };
+  // console.log("accounts outside", accounts);
+
+
+
   // Filter accounts based on search and filters
   const filteredAccounts = accounts.filter(account => {
-    const matchesSearch = searchTerm === '' || 
-      account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = searchTerm === '' ||
+      account.account_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      account.account_number.includes(searchTerm.toLowerCase()) ||
       account.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
       account.category.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     const matchesType = typeFilter === 'all' || account.type === typeFilter;
     const matchesCategory = categoryFilter === 'all' || account.category === categoryFilter;
-    
+
     return matchesSearch && matchesType && matchesCategory;
+
+
   });
 
-  // Helper function for badge colors
-  const getTypeBadgeColor = (type) => {
-    const colors = {
-      Asset: 'bg-green-100 text-green-800 border-green-200',
-      Liability: 'bg-red-100 text-red-800 border-red-200',
-      Equity: 'bg-blue-100 text-blue-800 border-blue-200',
-      Revenue: 'bg-purple-100 text-purple-800 border-purple-200',
-      Expense: 'bg-orange-100 text-orange-800 border-orange-200'
-    };
-    return colors[type] || 'bg-gray-100 text-gray-800 border-gray-200';
-  };
 
-  const getStatusColor = (type) => {
-    const colors = {
-      Asset: 'bg-gradient-to-r from-emerald-500 to-emerald-600',
-      Liability: 'bg-gradient-to-tr from-[#C15555] to-[#F47356]',
-      Equity: 'bg-blue-500',
-      Revenue: 'bg-purple-500',
-      Expense: 'bg-gradient-to-r from-amber-400 to-amber-500'
-    };
-    return colors[type] || 'bg-gray-500';
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-GB", { 
-      day: "numeric", 
-      month: "short", 
-      year: "numeric" 
-    });
-  };
-
-  // Pagination
-  const itemsPerPage = 10;
   const totalPages = Math.ceil(filteredAccounts.length / itemsPerPage);
   const currentItems = filteredAccounts.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  // Extract all account types
+  const status = accounts?.map(account => account.type);
+
+  // Helper function for badge colors
+  const getTypeBadgeColor = (status) => {
+    switch (status) {
+      case 'asset':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'liability':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'equity':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'revenue':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'expense':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  // Helper function for gradient background colors
+  const getStatusColor = (status) => {
+    if (!status) return 'bg-gray-500';
+
+    switch (status.toLowerCase()) {
+      case 'asset':
+        return 'bg-gradient-to-r from-emerald-500 to-emerald-600';
+      case 'liability':
+        return 'bg-gradient-to-tr from-[#C15555] to-[#F47356]';
+      case 'equity':
+        return 'bg-blue-500';
+      case 'revenue':
+        return 'bg-purple-500';
+      case 'expense':
+        return 'bg-gradient-to-r from-amber-400 to-amber-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
+  };
+
+
 
   return (
     <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto overflow-y-auto max-h-[calc(100vh)] pb-24 sm:pb-8">
@@ -168,43 +257,46 @@ export default function ChartOfAccounts() {
               )}
             </div>
 
-            {/* 🧩 Filter + Add Account Buttons (Hidden when search active) */}
-           {!isSearchActive && (
-  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-    <button
-      onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
-      className="flex items-center justify-center gap-2 w-full sm:w-[123px] h-[42px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[8px] transition-colors hover:bg-gray-200 px-4 py-2"
-    >
-      <img
-        src="/filter-icon.png"
-        alt="filter-icon"
-        className="h-5 w-5 sm:h-[22px] sm:w-[22px]"
-      />
-      <span className="text-[14px] leading-[11px] font-medium text-[#625377]">
-        Filters
-      </span>
+            {/* 🧩 Filter + AccountAdd  Buttons (Hidden when search active) */}
+            {!isSearchActive && (
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+                <button
+                  onClick={() => setIsFilterModalOpen(!isFilterModalOpen)}
+                  className="flex items-center justify-center gap-2 w-full sm:w-[123px] h-[42px] bg-[#F5F5FA] border border-[#E4E3F1] rounded-[8px] transition-colors hover:bg-gray-200 px-4 py-2"
+                >
+                  <img
+                    src="/filter-icon.png"
+                    alt="filter-icon"
+                    className="h-5 w-5 sm:h-[22px] sm:w-[22px]"
+                  />
+                  <span className="text-[14px] leading-[11px] font-medium text-[#625377]">
+                    Filters
+                  </span>
 
-      {/* ✅ Show badge only when filters are actually applied */}
-      {(
-        (typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types") ||
-        (categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories")
-      ) && (
-        <span className="w-[19px] h-[19px] bg-[#E4E3F1] border border-[#E4E3F1] rounded-full flex items-center justify-center text-[#615376] text-[12px]">
-          {[
-            typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types" ? 1 : 0,
-            categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories" ? 1 : 0,
-          ]
-            .filter(Boolean)
-            .length}
-        </span>
-      )}
-    </button>
+                  {/* ✅ Show badge only when filters are actually applied */}
+                  {(
+                    (typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types") ||
+                    (categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories")
+                  ) && (
+                      <span className="w-[19px] h-[19px] bg-[#E4E3F1] border border-[#E4E3F1] rounded-full flex items-center justify-center text-[#615376] text-[12px]">
+                        {[
+                          typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types" ? 1 : 0,
+                          categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories" ? 1 : 0,
+                        ]
+                          .filter(Boolean)
+                          .length}
+                      </span>
+                    )}
+                </button>
 
-    <button className="w-full sm:w-[166px] h-[42px] bg-[linear-gradient(257deg,_#5EA1F8_0%,_#4486D9_100%)] rounded-[10px_10px_10px_0px] opacity-100 flex items-center justify-center text-white gap-2 text-sm sm:text-base">
-      <Plus className="w-4 h-4" /> Add Account
-    </button>
-  </div>
-)}
+                <button
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="w-full sm:w-[166px] h-[42px] bg-[linear-gradient(257deg,_#5EA1F8_0%,_#4486D9_100%)] rounded-[10px_10px_10px_0px] opacity-100 flex items-center justify-center text-white gap-2 text-sm sm:text-base"
+                >
+                  <Plus className="w-4 h-4" /> Add Account
+                </button>
+              </div>
+            )}
 
           </div>
         </div>
@@ -349,206 +441,231 @@ export default function ChartOfAccounts() {
       )}
 
       {/* Accounts Table */}
-     <div className="bg-white shadow rounded-lg overflow-hidden">
-  <div className="min-h-[400px] overflow-x-auto">
-    {currentItems.length === 0 ? (
-      <div className="p-8 sm:p-12 text-center">
-        <div className="text-4xl sm:text-6xl mb-4">📝</div>
-        <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No Accounts Found</h3>
-        <p className="text-gray-600 text-sm sm:text-base">
-          {searchTerm || typeFilter !== "all" || categoryFilter !== "all"
-            ? "Try adjusting your search or filter criteria."
-            : "No accounts available."}
-        </p>
-      </div>
-    ) : (
-      <>
-       {/* <div className="min-w-0 max-w-full overflow-x-auto"> */}
-  <div className="w-full overflow-x-auto">
-    <table className="min-w-[800px] w-full divide-y divide-gray-200 text-center">
-      <thead className="w-full h-[50px] bg-[#F6F5FA] rounded-[10px] opacity-100 sticky top-0">
-        <tr>
-          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
-            ACCOUNT #
-          </th>
-          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[120px]">
-            ACCOUNT NAME
-          </th>
-          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
-            DOCUMENTS
-          </th>
-          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[80px]">
-            TYPE
-          </th>
-          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
-            CATEGORY
-          </th>
-          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
-            BALANCE
-          </th>
-          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
-            ACTIONS
-          </th>
-        </tr>
-      </thead>
+      <div className="bg-white shadow rounded-lg overflow-hidden">
+        <div className="min-h-[400px] overflow-x-auto">
+          {currentItems.length === 0 ? (
+            <div className="p-8 sm:p-12 text-center">
+              <div className="text-4xl sm:text-6xl mb-4">📝</div>
+              <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No Accounts Found</h3>
+              <p className="text-gray-600 text-sm sm:text-base">
+                {searchTerm || typeFilter !== "all" || categoryFilter !== "all"
+                  ? "Try adjusting your search or filter criteria."
+                  : "No accounts available."}
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* <div className="min-w-0 max-w-full overflow-x-auto"> */}
+              <div className="w-full overflow-x-auto">
+                <table className="min-w-[800px] w-full divide-y divide-gray-200 text-center">
+                  <thead className="w-full h-[50px] bg-[#F6F5FA] rounded-[10px] opacity-100 sticky top-0">
+                    <tr>
+                      <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
+                        SN.NO
+                      </th>
+                      <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
+                        ACCOUNT #
+                      </th>
+                      <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[120px]">
+                        ACCOUNT NAME
+                      </th>
+                      <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
+                        DOCUMENTS
+                      </th>
+                      <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[80px]">
+                        TYPE
+                      </th>
+                      <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
+                        CATEGORY
+                      </th>
+                      <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
+                        BALANCE
+                      </th>
+                      <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
+                        ACTIONS
+                      </th>
+                    </tr>
+                  </thead>
 
-      <tbody className="bg-white divide-y divide-gray-200">
-        {currentItems.map((account, index) => (
-          <tr
-            key={account.id}
-            onClick={() => handleRowClick(account.id)}
-            className={`h-[61px] bg-white rounded-[8px] opacity-100 transition-all cursor-pointer 
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {currentItems.map((account, index) => (
+                      <tr
+                        key={account.id}
+                        onClick={() => handleRowClick(account.id)}
+                        className={`h-[61px] bg-white rounded-[8px] opacity-100 transition-all cursor-pointer 
               ${selectedRowId === account.id
-                ? "bg-purple-100 shadow-lg"
-                : "hover:shadow-md hover:bg-gray-100"
-              }`}
-          >
-            <td className="text-[10px] sm:text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-3 sm:px-4 py-3 min-w-[100px]">
-              {account.id}
-            </td>
+                            ? "bg-purple-100 shadow-lg"
+                            : "hover:shadow-md hover:bg-gray-100"
+                          }`}
+                      >
+                        <td className="text-[10px] sm:text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-3 sm:px-4 py-3 min-w-[100px]">
+                          {index+1}
+                        </td>
+                        <td className="text-[10px] sm:text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-3 sm:px-4 py-3 min-w-[100px]">
+                          {account.account_number}
+                        </td>
 
-            <td className="px-3 sm:px-4 py-3 text-left text-[12px] sm:text-[14px] leading-[16px] font-bold text-[#191616] opacity-100 min-w-[120px]">
-              {account.name}
-            </td>
+                        <td className="px-3 sm:px-4 py-3 text-left text-[12px] sm:text-[14px] leading-[16px] font-bold text-[#191616] opacity-100 min-w-[120px]">
+                          {account.account_name}
+                        </td>
 
-            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap min-w-[100px]">
-              <div className="flex justify-start items-center">
-                <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 mr-1 sm:mr-2" />
-                <span className="text-xs sm:text-sm text-gray-900">{account.documentCount} files</span>
+                        <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap min-w-[100px]">
+                          <div className="flex justify-start items-center">
+                            <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 mr-1 sm:mr-2" />
+                            <span className="text-xs sm:text-sm text-gray-900">{account.documents === null ? 0 : account.documents.length} files</span>
+                            {console.log("document count", account)}
+                          </div>
+                        </td>
+
+                        <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap min-w-[80px]">
+                          <span
+                            className={`inline-flex justify-center items-center w-[70px] sm:w-[80px] h-[20px] sm:h-[24px] rounded-[6px] ${getStatusColor(account.type)} text-white text-[8px] sm:text-xs uppercase font-bold opacity-100`}
+                          >
+                            <span className="text-white text-[8px] sm:text-[10px] leading-[12px] font-semibold font-inter tracking-[1px] sm:tracking-[2px] uppercase text-center">{account.type}</span>
+                          </span>
+                        </td>
+
+                        <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-xs sm:text-sm text-gray-900 min-w-[100px]">
+                          {account.category}
+                        </td>
+
+                        <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-[10px] sm:text-[12px] leading-[16px] font-normal text-[#191616] opacity-100 min-w-[100px]">
+                          ${Number(account.balance) % 1 === 0
+                            ? Number(account.balance)
+                            : Number(account.balance).toFixed(2)}
+                        </td>
+
+
+                        <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap min-w-[100px]">
+                          <div className="flex justify-center items-center space-x-1 sm:space-x-2">
+                            <button className="text-blue-600 hover:text-blue-700 transition-colors" title="View Details" onClick={() => handleViewModal(account) }>
+                              <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                            </button>
+                            <button className="text-gray-600 hover:text-gray-700 transition-colors" title="Edit Account" onClick={() => handleUpdateModal(account)}>
+                              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                            </button>
+                            <button className="text-gray-600 hover:text-red-700 transition-colors">
+                              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                            </button>
+                            <button className="md:hidden text-gray-600 hover:text-gray-700 transition-colors">
+                              <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </td>
+              {/* </div> */}
 
-            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap min-w-[80px]">
-              <span
-                className={`inline-flex justify-center items-center w-[70px] sm:w-[80px] h-[20px] sm:h-[24px] rounded-[6px] ${getStatusColor(account.type)} text-white text-[8px] sm:text-xs uppercase font-bold opacity-100`}
-              >
-                <span className="text-white text-[8px] sm:text-[10px] leading-[12px] font-semibold font-inter tracking-[1px] sm:tracking-[2px] uppercase text-center">{account.type}</span>
-              </span>
-            </td>
-
-            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-xs sm:text-sm text-gray-900 min-w-[100px]">
-              {account.category}
-            </td>
-
-            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-[10px] sm:text-[12px] leading-[16px] font-normal text-[#191616] opacity-100 min-w-[100px]">
-              {account.balance}
-            </td>
-
-            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap min-w-[100px]">
-              <div className="flex justify-center items-center space-x-1 sm:space-x-2">
-                <button className="text-blue-600 hover:text-blue-700 transition-colors" title="View Details">
-                  <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-                </button>
-                <button className="text-gray-600 hover:text-gray-700 transition-colors">
-                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                </button>
-                <button className="text-gray-600 hover:text-red-700 transition-colors">
-                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                </button>
-                <button className="md:hidden text-gray-600 hover:text-gray-700 transition-colors">
-                  <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
-                </button>
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-{/* </div> */}
-
-{/* Pagination Controls */}
-<div className="h-auto sm:h-[55px] w-full bg-[#F5F5FA] sticky-bottom-0 rounded-[10px] opacity-100 px-3 sm:px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 sticky bottom-0 z-10">
-  <div className="flex flex-col sm:flex-row sm:flex-1 sm:items-center sm:justify-between gap-3 sm:gap-0 w-full">
-    <div className="text-center sm:text-left">
-      <p className="text-xs sm:text-sm text-gray-700">
-        Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
-        <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredAccounts.length)}</span> of{' '}
-        <span className="font-medium">{filteredAccounts.length}</span> results
-      </p>
-    </div>
-    <div className="w-full sm:w-auto">
-      <nav
-        className="flex items-center justify-center space-x-1 sm:space-x-2 w-full sm:w-[258px] h-[40px] bg-[#FAFAFC] border border-[#EEEFF2] rounded-[6px] opacity-100 px-1 sm:px-2"
-        aria-label="Pagination"
-      >
-        {/* Previous Button */}
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-r-2 sm:border-r-4 border-gray-200 pr-1 sm:pr-2 
+              {/* Pagination Controls */}
+              <div className="h-auto sm:h-[55px] w-full bg-[#F5F5FA] sticky-bottom-0 rounded-[10px] opacity-100 px-3 sm:px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 sticky bottom-0 z-10">
+                <div className="flex flex-col sm:flex-row sm:flex-1 sm:items-center sm:justify-between gap-3 sm:gap-0 w-full">
+                  <div className="text-center sm:text-left">
+                    <p className="text-xs sm:text-sm text-gray-700">
+                      Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+                      <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredAccounts.length)}</span> of{' '}
+                      <span className="font-medium">{filteredAccounts.length}</span> results
+                    </p>
+                  </div>
+                  <div className="w-full sm:w-auto">
+                    <nav
+                      className="flex items-center justify-center space-x-1 sm:space-x-2 w-full sm:w-[258px] h-[40px] bg-[#FAFAFC] border border-[#EEEFF2] rounded-[6px] opacity-100 px-1 sm:px-2"
+                      aria-label="Pagination"
+                    >
+                      {/* Previous Button */}
+                      <button
+                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-r-2 sm:border-r-4 border-gray-200 pr-1 sm:pr-2 
             ${currentPage === 1
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-              : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-        >
-          <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                            : "bg-white text-gray-700 hover:bg-gray-100"
+                          }`}
+                      >
+                        <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
             ${currentPage === 1 ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
-            <HiArrowLeftCircle className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === 1 ? "text-gray-500" : "text-white"}`} />
-          </span>
-          <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F]"} w-6 sm:w-[28px] h-3 sm:h-[15px] text-center opacity-100`}>
-            Prev
-          </span>
-        </button>
+                          <HiArrowLeftCircle className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === 1 ? "text-gray-500" : "text-white"}`} />
+                        </span>
+                        <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F]"} w-6 sm:w-[28px] h-3 sm:h-[15px] text-center opacity-100`}>
+                          Prev
+                        </span>
+                      </button>
 
-        {/* Page Numbers */}
-        {(() => {
-          const visiblePages = window.innerWidth < 640 ? 3 : 5;
-          let startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
-          let endPage = Math.min(totalPages, startPage + visiblePages - 1);
+                      {/* Page Numbers */}
+                      {(() => {
+                        const visiblePages = window.innerWidth < 640 ? 3 : 5;
+                        let startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
+                        let endPage = Math.min(totalPages, startPage + visiblePages - 1);
 
-          if (endPage - startPage < visiblePages - 1) {
-            startPage = Math.max(1, endPage - visiblePages + 1);
-          }
+                        if (endPage - startPage < visiblePages - 1) {
+                          startPage = Math.max(1, endPage - visiblePages + 1);
+                        }
 
-          return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
-            (page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-6 h-6 sm:w-[32px] sm:h-[33px] text-xs sm:text-sm rounded-[4px] opacity-100 flex items-center justify-center 
+                        return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
+                          (page) => (
+                            <button
+                              key={page}
+                              onClick={() => setCurrentPage(page)}
+                              className={`w-6 h-6 sm:w-[32px] sm:h-[33px] text-xs sm:text-sm rounded-[4px] opacity-100 flex items-center justify-center 
                   ${currentPage === page
-                    ? "bg-[#3F058F] text-white font-semibold"
-                    : "bg-white text-[#191616] hover:bg-gray-100"
-                  }`}
-              >
-                {page}
-              </button>
-            )
-          );
-        })()}
+                                  ? "bg-[#3F058F] text-white font-semibold"
+                                  : "bg-white text-[#191616] hover:bg-gray-100"
+                                }`}
+                            >
+                              {page}
+                            </button>
+                          )
+                        );
+                      })()}
 
-        {/* Next Button */}
-        <button
-          onClick={() =>
-            setCurrentPage((prev) =>
-              Math.min(prev + 1, totalPages)
-            )
-          }
-          disabled={currentPage === totalPages}
-          className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-l-2 sm:border-l-4 border-gray-200 pl-1 sm:pl-2
+                      {/* Next Button */}
+                      <button
+                        onClick={() =>
+                          setCurrentPage((prev) =>
+                            Math.min(prev + 1, totalPages)
+                          )
+                        }
+                        disabled={currentPage === totalPages}
+                        className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-l-2 sm:border-l-4 border-gray-200 pl-1 sm:pl-2
             ${currentPage === totalPages
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-              : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-        >
-          <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold w-6 sm:w-[28px] h-3 sm:h-[15px] text-center 
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                            : "bg-white text-gray-700 hover:bg-gray-100"
+                          }`}
+                      >
+                        <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold w-6 sm:w-[28px] h-3 sm:h-[15px] text-center 
             ${currentPage === totalPages ? "text-gray-400" : "text-[#3F058F]"} opacity-100`}>
-            Next
-          </span>
-          <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
+                          Next
+                        </span>
+                        <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
                 ${currentPage === Math.ceil(filteredAccounts.length / 10) ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
-            <HiArrowRightCircle className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === Math.ceil(filteredAccounts.length / 10) ? "text-gray-500" : "text-white"}`} />
-          </span>
-        </button>
-      </nav>
+                          <HiArrowRightCircle className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === Math.ceil(filteredAccounts.length / 10) ? "text-gray-500" : "text-white"}`} />
+                        </span>
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+      {/* Add Account Modal */}
+      <AddAccountModal
+        isOpen={isAddModalOpen || isViewModalOpen || isUpdateModalOpen  }
+        isView={isViewModalOpen}
+        isUpdate={isUpdateModalOpen}
+        accountId={selectedRowId}
+        viewData={isViewData}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setIsViewModalOpen(false);
+          setIsUpdateModalOpen(false);
+        }}
+        onSave={handleSaveAccount}
+      />
     </div>
-  </div>
-</div>
-      </>
-    )}
-  </div>
-</div>
-    </div>
+
   );
 }

@@ -59,10 +59,6 @@ export default function DashboardLayout({ children, isOpen, setIsOpen, currentPa
     }
   }
 
-  
-
- 
-
   return (
     <FilterModalContext.Provider
       value={{
@@ -72,32 +68,29 @@ export default function DashboardLayout({ children, isOpen, setIsOpen, currentPa
         setIsFormModalOpen,
       }}
     >
-      {/* <div className="flex flex-col  bg-gray-50 overflow-hidden"> */}
+      <div className="flex-1 flex h-screen overflow-hidden bg-[#541DA0]">
+        {/* Sidebar Container */}
+        <div className={`flex-shrink-0 transition-all duration-300 ${
+          isFilterModalOpen || isFormModalOpen ? "blur-sm" : ""
+        }`}>
+          <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} currentPath={currentPath} />
+        </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex h-screen overflow-hidden bg-[#541DA0]">
-          {/* Sidebar Container */}
-          <div className={`flex-shrink-0 transition-all duration-300 ${
-            isFilterModalOpen || isFormModalOpen ? "blur-sm" : ""
-          }`}>
-            <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} currentPath={currentPath} />
-          </div>
-
-          {/* Main Content */}
-          <div 
-            className={`flex-1 flex flex-col overflow-hidden bg-white transition-all duration-300 ${
-              isMobile ? "rounded-none" : ""
-            } `}
-          >
-            <div className="flex-1  w-full">
-              <div className="block sm:hidden min-h-8"></div>
-              <div className="px-3 py-4">
+        {/* Main Content - FIXED HEIGHT */}
+        <div className={`flex-1 flex flex-col h-screen overflow-hidden bg-white transition-all duration-300 ${
+          isMobile ? "rounded-none" : ""
+        }`}>
+          {/* Fixed header space for mobile */}
+          <div className="block sm:hidden min-h-8 flex-shrink-0"></div>
+          
+          {/* Scrollable content area */}
+          <div className="flex-1 ">
+            <div className="px-3 py-4 min-h-full">
               {children}
-              </div>
             </div>
           </div>
         </div>
-      {/* </div> */}
+      </div>
     </FilterModalContext.Provider>
   )
 }

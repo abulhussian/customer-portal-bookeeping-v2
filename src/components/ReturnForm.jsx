@@ -28,6 +28,8 @@ const ReturnForm = ({ isOpen, onClose, onSubmit, editingReturn, customer, error 
   const token = customer?.token
   const customerName = customer?.name
 
+  const {uid , role} = JSON.parse(localStorage.getItem("userProfile"));
+  console.log("userData in return form", uid , role)
   // ---- EDITING PRE-FILL ----------------------------------------------------
   useEffect(() => {
     if (editingReturn) {

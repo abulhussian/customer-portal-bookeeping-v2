@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Edit, Trash2, X, Eye, FileText, MoreVertical } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { useFilterModal } from "@/src/components/DashboardLayout";
+import { BASE_URL } from "@/src/components/BaseUrl";
 
 export default function JournalEntries() {
   const { isFilterModalOpen, setIsFilterModalOpen } = useFilterModal();
@@ -18,90 +19,371 @@ export default function JournalEntries() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [tempTypeFilter, setTempTypeFilter] = useState("all");
   const [tempCategoryFilter, setTempCategoryFilter] = useState("all");
-
+ const [journalId, setJournalId] = useState(null);
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   // Table States
   const [selectedRowId, setSelectedRowId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
+  const [entries, setEntries] = useState([]);
+  const [accounts, setAccounts] = useState([]);
+  const { uid, role } = JSON.parse(localStorage.getItem("userProfile"));
   // Journal Entries States
-  const [entries, setEntries] = useState([
-    {
-      id: 1,
-      date: "2024-01-15",
-      reference: "JE-001",
-      description: "Monthly rent payment",
-      debitAccount: "Rent Expense",
-      creditAccount: "Cash",
-      amount: "$2,000.00",
-      type: "Expense",
-      category: "Operating Expenses",
-      documentCount: 2
-    },
-    {
-      id: 2,
-      date: "2024-01-14",
-      reference: "JE-002",
-      description: "Customer payment received",
-      debitAccount: "Cash",
-      creditAccount: "Accounts Receivable",
-      amount: "$5,000.00",
-      type: "Asset",
-      category: "Current Assets",
-      documentCount: 1
-    },
-    {
-      id: 3,
-      date: "2024-01-13",
-      reference: "JE-003",
-      description: "Office supplies purchase",
-      debitAccount: "Office Supplies",
-      creditAccount: "Accounts Payable",
-      amount: "$350.00",
-      type: "Expense",
-      category: "Operating Expenses",
-      documentCount: 3
-    },
-    {
-      id: 4,
-      date: "2024-01-12",
-      reference: "JE-004",
-      description: "Equipment purchase",
-      debitAccount: "Equipment",
-      creditAccount: "Cash",
-      amount: "$12,500.00",
-      type: "Asset",
-      category: "Fixed Assets",
-      documentCount: 4
-    },
-    {
-      id: 5,
-      date: "2024-01-11",
-      reference: "JE-005",
-      description: "Loan payment",
-      debitAccount: "Loan Payable",
-      creditAccount: "Cash",
-      amount: "$1,200.00",
-      type: "Liability",
-      category: "Current Liabilities",
-      documentCount: 2
-    }
-  ]);
+  // const [entries, setEntries] = useState([
+  //   {
+  //     id: 1,
+  //     date: "2024-01-15",
+  //     reference: "JE-001",
+  //     description: "Monthly rent payment",
+  //     debitAccount: "Rent Expense",
+  //     creditAccount: "Cash",
+  //     amount: "$2,000.00",
+  //     type: "Expense",
+  //     category: "Operating Expenses",
+  //     documentCount: 2
+  //   },
+  //   {
+  //     id: 2,
+  //     date: "2024-01-14",
+  //     reference: "JE-002",
+  //     description: "Customer payment received",
+  //     debitAccount: "Cash",
+  //     creditAccount: "Accounts Receivable",
+  //     amount: "$5,000.00",
+  //     type: "Asset",
+  //     category: "Current Assets",
+  //     documentCount: 1
+  //   },
+  //   {
+  //     id: 3,
+  //     date: "2024-01-13",
+  //     reference: "JE-003",
+  //     description: "Office supplies purchase",
+  //     debitAccount: "Office Supplies",
+  //     creditAccount: "Accounts Payable",
+  //     amount: "$350.00",
+  //     type: "Expense",
+  //     category: "Operating Expenses",
+  //     documentCount: 3
+  //   },
+  //   {
+  //     id: 4,
+  //     date: "2024-01-12",
+  //     reference: "JE-004",
+  //     description: "Equipment purchase",
+  //     debitAccount: "Equipment",
+  //     creditAccount: "Cash",
+  //     amount: "$12,500.00",
+  //     type: "Asset",
+  //     category: "Fixed Assets",
+  //     documentCount: 4
+  //   },
+  //   {
+  //     id: 5,
+  //     date: "2024-01-11",
+  //     reference: "JE-005",
+  //     description: "Loan payment",
+  //     debitAccount: "Loan Payable",
+  //     creditAccount: "Cash",
+  //     amount: "$1,200.00",
+  //     type: "Liability",
+  //     category: "Current Liabilities",
+  //     documentCount: 2
+  //   }
+  // ]);
+
+
 
   const [newEntry, setNewEntry] = useState({
     date: "",
-    reference: "",
-    description: "",
-    debitAccount: "",
-    creditAccount: "",
-    amount: "",
+    reference_number: "",
+    debit_account: "",
+    credit_account: "",
+    amount: 0,
+    customer_id: uid,
+    createdby_type: role,
+    createdby_id: uid,
+    transaction_description: "",
+    source_category: "",
+    source_account: "",
+    source_account_name: "",
+    source_description: "",
+    destination_category: "",
+    destination_account: "",
+    destination_account_name: "",
+    destination_description: "",
   });
+
+  // useEffect(() => {
+  //   
+  // }, []);
+
+
+//  const handleSubmit = async () => {
+ 
+
+//   // 🧩 Basic validation before API call
+//   // if (!newEntry.date) {
+//   //   toast.error("Please select a Date");
+//   //   return;
+//   // }
+//   // if (!newEntry.reference_number?.trim()) {
+//   //   toast.error("Please enter Reference Number");
+//   //   return;
+//   // }
+//   // if (!newEntry.amount || isNaN(newEntry.amount)) {
+//   //   toast.error("Please enter a valid Amount");
+//   //   return;
+//   // }
+//   // if (!newEntry.transaction_description?.trim()) {
+//   //   toast.error("Please enter Transaction Description");
+//   //   return;
+//   // }
+//   // if (!newEntry.source_account || !newEntry.destination_account) {
+//   //   toast.error("Please select Source and Destination Accounts");
+//   //   return;
+//   // }
+
+//   // setIsLoading(true);
+
+//   try {
+//     let response;
+//     let url;
+//     let method;
+
+//     // if (isUpdate && journalId) {
+//     //   // Update existing journal entry
+//     //   url = `http://192.168.1.5:3001/api/book-keeping/journal-entry/update/${journalId}`;
+//     //   method = "PATCH";
+//     // } else {
+//       // Create new journal entry
+//       url = "http://192.168.1.5:3001/api/book-keeping/journal-entry/add";
+//       method = "POST";
+//     // }
+
+//     // 🧾 Prepare the payload
+//     const journalData = {
+//       date: newEntry.date,
+//       reference_number: newEntry.reference_number,
+//       amount: Number(newEntry.amount),
+//       transaction_description: newEntry.transaction_description,
+//       source_category: newEntry.source_category,
+//       source_account: Number(newEntry.source_account),
+//       source_account_name: newEntry.source_account_name,
+//       source_description: newEntry.source_description,
+//       destination_category: newEntry.destination_category,
+//       destination_account: Number(newEntry.destination_account),
+//       destination_account_name: newEntry.destination_account_name,
+//       destination_description: newEntry.destination_description,
+//       customer_id: Number(newEntry.customer_id),
+//       createdby_type: newEntry.createdby_type,
+//       createdby_id: Number(newEntry.createdby_id),
+//     };
+
+//     // 🌐 Send request
+//     response = await fetch(url, {
+//       method,
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(journalData),
+//     });
+
+//     const data = await response.json();
+
+//     if (response.ok) {
+//       const successMessage = "Journal created  successfully ✅"
+//         ;
+
+//       toast.success(successMessage);
+
+//       onSave(journalData);
+//       onClose();
+//     } else {
+//       toast.error(data.message || `Failed to update" : "create"} journal entry.`);
+//     }
+//   } catch (err) {
+//     console.error(`Error updating" : "creating"} journal entry:`, err);
+//     toast.error("Something went wrong. Please try again later.");
+//   } finally {
+//     setIsLoading(false);
+//   }
+// };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // Validation
+  if (!newEntry.date) return toast.error("Please select a Date");
+  if (!newEntry.reference_number?.trim()) return toast.error("Please enter Reference Number");
+
+  setIsLoading(true);
+
+  try {
+    const journalData = {
+      date: newEntry.date,
+      reference_number: newEntry.reference_number,
+      amount: Number(newEntry.amount),
+      transaction_description: newEntry.transaction_description,
+      source_category: newEntry.source_category,
+      source_account: Number(newEntry.source_account),
+      source_account_name: newEntry.source_account_name,
+      source_description: newEntry.source_description,
+      destination_category: newEntry.destination_category,
+      destination_account: Number(newEntry.destination_account),
+      destination_account_name: newEntry.destination_account_name,
+      destination_description: newEntry.destination_description,
+      customer_id: Number(newEntry.customer_id),
+      createdby_type: newEntry.createdby_type,
+      createdby_id: Number(newEntry.createdby_id),
+    };
+
+    let response;
+
+    if (isUpdate && journalId) {
+      // 🔁 UPDATE
+      response = await fetch(`${BASE_URL}/api/book-keeping/journal-entry/update/${journalId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(journalData),
+      });
+    } else {
+      // 🆕 ADD
+      response = await fetch(`${BASE_URL}/api/book-keeping/journal-entry/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(journalData),
+      });
+    }
+
+    const data = await response.json();
+
+    if (response.ok) {
+      toast.success(isUpdate ? "Journal Entry updated successfully ✅" : "Journal Entry created successfully 🎉");
+
+      // Clear update mode after save
+      setIsUpdate(false);
+      setJournalId(null);
+      setNewEntry(
+    { date: "",
+    reference_number: "",
+    debit_account: "",
+    credit_account: "",
+    amount: 0,
+    customer_id: uid,
+    createdby_type: role,
+    createdby_id: uid,
+    transaction_description: "",
+    source_category: "",
+    source_account: "",
+    source_account_name: "",
+    source_description: "",
+    destination_category: "",
+    destination_account: "",
+    destination_account_name: "",
+    destination_description: "",})
+      onSave(journalData);
+      onClose();
+    } else {
+      toast.error(data.message || "Operation failed.");
+    }
+  } catch (err) {
+    console.error("Error submitting journal entry:", err);
+    toast.error("Something went wrong. Please try again later.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const handleEdit = (entry) => {
+  setIsUpdate(true);
+  setJournalId(entry.id);
+
+  setNewEntry({
+    date: entry.transaction_date?.split("T")[0] || "", // format yyyy-mm-dd
+    reference_number: entry.reference_number || "",
+    amount: entry.amount || "",
+    transaction_description: entry.transaction_description || "",
+    source_category: entry.source_category || "",
+    source_account: entry.source_account || "",
+    source_account_name: entry.source_account_name || "",
+    source_description: entry.source_description || "",
+    destination_category: entry.destination_category || "",
+    destination_account: entry.destination_account || "",
+    destination_account_name: entry.destination_account_name || "",
+    destination_description: entry.destination_description || "",
+    customer_id: entry.customer_id || "",
+    createdby_type: entry.createdby_type || "",
+    createdby_id: entry.createdby_id || "",
+  });
+};
+
+
+
+  useEffect(() => {
+    getAccounts();
+    getEntries();
+
+  }, []);
+
+  const getAccounts = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/book-keeping/get-all-accounts/${uid}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log(" get accounts response", response.data);
+
+      const data = await response.json();
+
+
+      setAccounts(data)
+      console.log("accounts", data);
+      
+
+
+    } catch (error) {
+      console.error("Error fetching accounts:", error);
+    }
+  };
+
+  const getEntries = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/book-keeping/journal-entry/get-all/${uid}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      setEntries(data);
+
+    } catch (error) {
+      console.error("Error fetching entries:", error);
+    }
+  };
+  console.log("entries", entries);
 
   // Search and Filter Functions
   const handleCloseSearch = () => {
     setIsSearchActive(false);
     setSearchTerm("");
   };
+
+  function formatDate(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
 
   const applyFilters = () => {
     setTypeFilter(tempTypeFilter);
@@ -334,8 +616,8 @@ export default function JournalEntries() {
                 <Input
                   id="reference"
                   placeholder="JE-004"
-                  value={newEntry.reference}
-                  onChange={(e) => setNewEntry({ ...newEntry, reference: e.target.value })}
+                  value={newEntry.reference_number}
+                  onChange={(e) => setNewEntry({ ...newEntry, reference_number: e.target.value })}
                   className="w-full bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                 />
               </div>
@@ -357,14 +639,14 @@ export default function JournalEntries() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-medium text-gray-700">
-                Description *
+              <Label htmlFor="transactionDescription" className="text-sm font-medium text-gray-700">
+                Transaction Description *
               </Label>
               <Textarea
-                id="description"
+                id="transactionDescription"
                 placeholder="Enter transaction description..."
-                value={newEntry.description}
-                onChange={(e) => setNewEntry({ ...newEntry, description: e.target.value })}
+                value={newEntry.transaction_description}
+                onChange={(e) => setNewEntry({ ...newEntry, transaction_description: e.target.value })}
                 rows={2}
                 required
                 className="w-full bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
@@ -373,42 +655,184 @@ export default function JournalEntries() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="debitAccount" className="text-sm font-medium text-gray-700">
-                  Debit Account *
+                <Label htmlFor="sourceCategory" className="text-sm font-medium text-gray-700">
+                  Source Category *
                 </Label>
                 <select
-                  value={newEntry.debitAccount}
-                  onChange={(e) => setNewEntry({ ...newEntry, debitAccount: e.target.value })}
+                  id="sourceCategory"
+                  value={newEntry.source_category}
+                  onChange={(e) => setNewEntry({ ...newEntry, source_category: e.target.value })}
                   className="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                   required
                 >
-                  <option value="">Select account</option>
-                  <option value="Cash">Cash</option>
-                  <option value="Accounts Receivable">Accounts Receivable</option>
-                  <option value="Inventory">Inventory</option>
-                  <option value="Equipment">Equipment</option>
-                  <option value="Rent Expense">Rent Expense</option>
-                  <option value="Office Supplies">Office Supplies</option>
+                  <option value="">Select category</option>
+                  <option value="Asset">Asset</option>
+                  <option value="Liability">Liability</option>
+                  <option value="Equity">Equity</option>
+                  <option value="Revenue">Revenue</option>
+                  <option value="Expense">Expense</option>
                 </select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="creditAccount" className="text-sm font-medium text-gray-700">
-                  Credit Account *
+                <Label htmlFor="sourceAccount" className="text-sm font-medium text-gray-700">
+                  Source Account *
                 </Label>
-                <select
-                  value={newEntry.creditAccount}
-                  onChange={(e) => setNewEntry({ ...newEntry, creditAccount: e.target.value })}
+                {/* <select
+                
+                  id="sourceAccount"
+                  value={newEntry.source_account}
+                  onChange={(e) => setNewEntry({ ...newEntry, source_account: e.target.value })}
                   className="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                   required
                 >
                   <option value="">Select account</option>
-                  <option value="Cash">Cash</option>
-                  <option value="Accounts Payable">Accounts Payable</option>
-                  <option value="Accounts Receivable">Accounts Receivable</option>
-                  <option value="Sales Revenue">Sales Revenue</option>
-                  <option value="Owner's Equity">Owner's Equity</option>
+                  {accounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.account_name}
+                    </option>
+                  ))}
+                </select> */}
+
+                <select
+  id="sourceAccount"
+  value={
+    newEntry.source_account
+      ? JSON.stringify({
+          id: newEntry.source_account,
+          name: newEntry.source_account_name,
+        })
+      : ""
+  }
+  onChange={(e) => {
+    const selectedValue = JSON.parse(e.target.value); // convert string → object
+    setNewEntry({
+      ...newEntry,
+      source_account: selectedValue.id,
+      source_account_name: selectedValue.name,
+    });
+  }}
+  className="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
+  required
+>
+  <option value="">Select account</option>
+  {accounts.map((account) => (
+    <option
+      key={account.id}
+      value={JSON.stringify({
+        id: account.id,
+        name: account.account_name,
+      })}
+    >
+      {account.account_name}
+    </option>
+  ))}
+</select>
+
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="sourceDescription" className="text-sm font-medium text-gray-700">
+                Source Description
+              </Label>
+              <Input
+                id="sourceDescription"
+                placeholder="Enter source description..."
+                value={newEntry.source_description}
+                onChange={(e) => setNewEntry({ ...newEntry, source_description: e.target.value })}
+                className="w-full bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
+              />
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="destinationCategory" className="text-sm font-medium text-gray-700">
+                  Destination Category *
+                </Label>
+                <select
+                  id="destinationCategory"
+                  value={newEntry.destination_category}
+                  onChange={(e) => setNewEntry({ ...newEntry, destination_category: e.target.value })}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
+                  required
+                >
+                  <option value="">Select category</option>
+                  
+                  <option value="Asset">Asset</option>
+                  <option value="Liability">Liability</option>
+                  <option value="Equity">Equity</option>
+                  <option value="Revenue">Revenue</option>
+                  <option value="Expense">Expense</option>
                 </select>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="destinationAccount" className="text-sm font-medium text-gray-700">
+                  Destination Account *
+                </Label>
+                {/* <select
+                  id="destinationAccount"
+                  value={newEntry.destination_account}
+                  onChange={(e) => setNewEntry({ ...newEntry, destination_account: e.target.value })}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
+                  required
+                >
+                  <option value="">Select account</option>
+                  {accounts.map((account) => (  
+                    <option key={account.id} value={account.id}>
+                      {account.account_name}
+                    </option>
+                  ))}
+                 
+                </select> */}
+                <select
+  id="destinationAccount"
+  value={
+    newEntry.destination_account
+      ? JSON.stringify({
+          id: newEntry.destination_account,
+          name: newEntry.destination_account_name,
+        })
+      : ""
+  }
+  onChange={(e) => {
+    const selectedValue = JSON.parse(e.target.value);
+    setNewEntry({
+      ...newEntry,
+      destination_account: selectedValue.id,
+      destination_account_name: selectedValue.name,
+    });
+  }}
+  className="w-full bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
+  required
+>
+  <option value="">Select account</option>
+  {accounts.map((account) => (
+    <option
+      key={account.id}
+      value={JSON.stringify({
+        id: account.id,
+        name: account.account_name,
+      })}
+    >
+      {account.account_name}
+    </option>
+  ))}
+</select>
+
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="destinationDescription" className="text-sm font-medium text-gray-700">
+                Destination Description
+              </Label>
+              <Input
+                id="destinationDescription"
+                placeholder="Enter destination description..."
+                value={newEntry.destination_description}
+                onChange={(e) => setNewEntry({ ...newEntry, destination_description: e.target.value })}
+                className="w-full bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
+              />
             </div>
 
             <div className="flex justify-end gap-4 pt-4">
@@ -420,13 +844,23 @@ export default function JournalEntries() {
               >
                 Clear
               </Button>
-              <Button
+              {/* <Button
                 type="submit"
                 className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={(e)=>{handleSubmit()}}
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Entry
-              </Button>
+              </Button> */}
+              <Button
+  type="submit"
+  className="bg-blue-600 hover:bg-blue-700 text-white"
+  onClick={handleSubmit}
+>
+  <Plus className="mr-2 h-4 w-4" />
+  {isUpdate ? "Update Entry" : "Add Entry"}
+</Button>
+
             </div>
           </form>
         </CardContent>
@@ -495,21 +929,20 @@ export default function JournalEntries() {
                       Filters
                     </span>
                     {/* ✅ Show badge only when filters are actually applied */}
-      {(
-        (typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types") ||
-        (categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories")
-      ) && (
-        <span className="w-[19px] h-[19px] bg-[#E4E3F1] border border-[#E4E3F1] rounded-full flex items-center justify-center text-[#615376] text-[12px]">
-          {[
-            typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types" ? 1 : 0,
-            categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories" ? 1 : 0,
-          ]
-            .filter(Boolean)
-            .length}
-        </span>
-      )}
+                    {(
+                      (typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types") ||
+                      (categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories")
+                    ) && (
+                        <span className="w-[19px] h-[19px] bg-[#E4E3F1] border border-[#E4E3F1] rounded-full flex items-center justify-center text-[#615376] text-[12px]">
+                          {[
+                            typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types" ? 1 : 0,
+                            categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories" ? 1 : 0,
+                          ]
+                            .filter(Boolean)
+                            .length}
+                        </span>
+                      )}
                   </button>
-
 
                 </div>
               )}
@@ -610,188 +1043,198 @@ export default function JournalEntries() {
                 </div>
               ) : (
                 <>
-    <div className="w-full overflow-x-auto">
-  <table className="min-w-[800px] w-full divide-y divide-gray-200 text-center">
-    <thead className="w-full h-[50px] bg-[#F6F5FA] rounded-[10px] opacity-100 sticky top-0">
-      <tr>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[80px]">
-          DATE
-        </th>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
-          REFERENCE
-        </th>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[120px]">
-          DESCRIPTION
-        </th>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[120px]">
-          DEBIT ACCOUNT
-        </th>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[120px]">
-          CREDIT ACCOUNT
-        </th>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[80px]">
-          AMOUNT
-        </th>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
-          ACTIONS
-        </th>
-      </tr>
-    </thead>
+                  <div className="w-full overflow-x-auto">
+                    <table className="min-w-[800px] w-full divide-y divide-gray-200 text-center">
+                      <thead className="w-full h-[50px] bg-[#F6F5FA] rounded-[10px] opacity-100 sticky top-0">
+                        <tr>
+                          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[80px]">
+                            SN.NO
+                          </th>
+                          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[80px]">
+                            DATE
+                          </th>
+                          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
+                            REFERENCE
+                          </th>
+                          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[120px]">
+                            DESCRIPTION
+                          </th>
+                          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[120px]">
+                            DEBIT ACCOUNT
+                          </th>
+                          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[120px]">
+                            CREDIT ACCOUNT
+                          </th>
+                          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[80px]">
+                            AMOUNT
+                          </th>
+                          <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 min-w-[100px]">
+                            ACTIONS
+                          </th>
+                        </tr>
+                      </thead>
 
-    <tbody className="bg-white divide-y divide-gray-200 text-center">
-      {currentItems.map((entry, index) => (
-        <tr
-          key={entry.id}
-          onClick={() => handleRowClick(entry.id)}
-          className={`h-[61px] bg-white rounded-[8px] opacity-100 transition-all cursor-pointer 
+                      <tbody className="bg-white divide-y divide-gray-200 text-center">
+                        {currentItems.map((entry, index) => (
+                          <tr
+                            key={entry.id}
+                            onClick={() => handleRowClick(entry.id)}
+                            className={`h-[61px] bg-white rounded-[8px] opacity-100 transition-all cursor-pointer 
             ${selectedRowId === entry.id
-              ? "bg-purple-100 shadow-lg"
-              : "hover:shadow-md hover:bg-gray-100"
-            }`}
-        >
-          <td className="text-[10px] sm:text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-3 sm:px-4 py-3 min-w-[80px]">
-            {entry.date}
-          </td>
+                                ? "bg-purple-100 shadow-lg"
+                                : "hover:shadow-md hover:bg-gray-100"
+                              }`}
+                          >
+                            <td className="text-[10px] sm:text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-3 sm:px-4 py-3 min-w-[80px]">
+                              {index + 1}
+                            </td>
+                            <td className="text-[10px] sm:text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-3 sm:px-4 py-3 min-w-[80px]">
+                              {formatDate(entry.created_at)}
+                            </td>
 
-          <td className="px-2 sm:px-2 py-3 text-left text-[12px] sm:text-[14px] leading-[16px] font-bold text-[#191616] opacity-100 min-w-[100px]">
-            {entry.reference}
-          </td>
 
-          <td className="px-2 sm:px-2 py-3 text-left text-[12px] sm:text-[14px] leading-[16px] text-[#191616] opacity-100 min-w-[120px]">
-            {entry.description}
-          </td> 
-          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-xs sm:text-sm text-gray-900 min-w-[120px]">
-            {entry.debitAccount}
-          </td>
+                            <td className="px-2 sm:px-2 py-3 text-left text-[12px] sm:text-[14px] leading-[16px] font-bold text-[#191616] opacity-100 min-w-[100px]">
+                              {entry.reference_number}
+                            </td>
 
-          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-xs sm:text-sm text-gray-900 min-w-[120px]">
-            {entry.creditAccount}
-          </td>
+                            <td className="px-2 sm:px-2 py-3 text-left text-[12px] sm:text-[14px] leading-[16px] text-[#191616] opacity-100 min-w-[120px]">
+                              {entry.transaction_description}
+                            </td>
+                            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-xs sm:text-sm text-gray-900 min-w-[120px]">
+                              {entry.source_account_name}
+                            </td>
 
-          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-[10px] sm:text-[12px] leading-[16px] font-normal text-[#191616] opacity-100 min-w-[80px]">
-            {entry.amount}
-          </td>
+                            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-xs sm:text-sm text-gray-900 min-w-[120px]">
+                              {entry.destination_account_name}
+                            </td>
 
-          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap min-w-[100px]">
-            <div className="flex justify-center items-center space-x-1 sm:space-x-2">
-              <button className="text-blue-600 hover:text-blue-700 transition-colors" title="View Details">
-                <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-              </button>
-              <button className="text-gray-600 hover:text-gray-700 transition-colors">
-                <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-              </button>
-              <button
-                className="text-gray-600 hover:text-red-700 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteEntry(entry.id);
-                }}
-              >
-                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-              </button>
-              <button className="md:hidden text-gray-600 hover:text-gray-700 transition-colors">
-                <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
-              </button>
-            </div>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+                            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-[10px] sm:text-[12px] leading-[16px] font-normal text-[#191616] opacity-100 min-w-[80px]">
+                              {entry.amount}
+                            </td>
 
-{/* Pagination Controls */}
-<div className="h-auto sm:h-[55px] w-full bg-[#F5F5FA] rounded-[10px] opacity-100 px-3 sm:px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 sticky bottom-0 z-10">
-  <div className="flex flex-col sm:flex-row sm:flex-1 sm:items-center sm:justify-between gap-3 sm:gap-0 w-full">
-    <div className="text-center sm:text-left">
-      <p className="text-xs sm:text-sm text-gray-700">
-        Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
-        <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredEntries.length)}</span> of{' '}
-        <span className="font-medium">{filteredEntries.length}</span> results
-      </p>
-    </div>
-    <div className="w-full sm:w-auto">
-      <nav
-        className="flex items-center justify-center space-x-1 sm:space-x-2 w-full sm:w-[258px] h-[40px] bg-[#FAFAFC] border border-[#EEEFF2] rounded-[6px] opacity-100 px-1 sm:px-2"
-        aria-label="Pagination"
-      >
-        {/* Previous Button */}
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-r-2 sm:border-r-4 border-gray-200 pr-1 sm:pr-2 
+                            <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap min-w-[100px]">
+                              <div className="flex justify-center items-center space-x-1 sm:space-x-2">
+                                <button className="text-blue-600 hover:text-blue-700 transition-colors" title="View Details">
+                                  <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                                </button>
+                                <button
+  className="text-gray-600 hover:text-gray-700 transition-colors"
+  onClick={() => handleEdit(entry)} // 👈 pass current entry data
+>
+  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+</button>
+                                <button
+                                  className="text-gray-600 hover:text-red-700 transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteEntry(entry.id);
+                                  }}
+                                >
+                                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                                </button>
+                                <button className="md:hidden text-gray-600 hover:text-gray-700 transition-colors">
+                                  <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination Controls */}
+                  <div className="h-auto sm:h-[55px] w-full bg-[#F5F5FA] rounded-[10px] opacity-100 px-3 sm:px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 sticky bottom-0 z-10">
+                    <div className="flex flex-col sm:flex-row sm:flex-1 sm:items-center sm:justify-between gap-3 sm:gap-0 w-full">
+                      <div className="text-center sm:text-left">
+                        <p className="text-xs sm:text-sm text-gray-700">
+                          Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+                          <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredEntries.length)}</span> of{' '}
+                          <span className="font-medium">{filteredEntries.length}</span> results
+                        </p>
+                      </div>
+                      <div className="w-full sm:w-auto">
+                        <nav
+                          className="flex items-center justify-center space-x-1 sm:space-x-2 w-full sm:w-[258px] h-[40px] bg-[#FAFAFC] border border-[#EEEFF2] rounded-[6px] opacity-100 px-1 sm:px-2"
+                          aria-label="Pagination"
+                        >
+                          {/* Previous Button */}
+                          <button
+                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-r-2 sm:border-r-4 border-gray-200 pr-1 sm:pr-2 
             ${currentPage === 1
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-              : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-        >
-          <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                                : "bg-white text-gray-700 hover:bg-gray-100"
+                              }`}
+                          >
+                            <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
             ${currentPage === 1 ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
-            <svg className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === 1 ? "text-gray-500" : "text-white"}`} fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-          </span>
-          <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F]"} w-6 sm:w-[28px] h-3 sm:h-[15px] text-center opacity-100`}>
-            Prev
-          </span>
-        </button>
+                              <svg className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === 1 ? "text-gray-500" : "text-white"}`} fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </span>
+                            <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F]"} w-6 sm:w-[28px] h-3 sm:h-[15px] text-center opacity-100`}>
+                              Prev
+                            </span>
+                          </button>
 
-        {/* Page Numbers */}
-        {(() => {
-          const visiblePages = typeof window !== 'undefined' && window.innerWidth < 640 ? 3 : 5;
-          let startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
-          let endPage = Math.min(totalPages, startPage + visiblePages - 1);
+                          {/* Page Numbers */}
+                          {(() => {
+                            const visiblePages = typeof window !== 'undefined' && window.innerWidth < 640 ? 3 : 5;
+                            let startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
+                            let endPage = Math.min(totalPages, startPage + visiblePages - 1);
 
-          if (endPage - startPage < visiblePages - 1) {
-            startPage = Math.max(1, endPage - visiblePages + 1);
-          }
+                            if (endPage - startPage < visiblePages - 1) {
+                              startPage = Math.max(1, endPage - visiblePages + 1);
+                            }
 
-          return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
-            (page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-6 h-6 sm:w-[32px] sm:h-[33px] text-xs sm:text-sm rounded-[4px] opacity-100 flex items-center justify-center 
+                            return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
+                              (page) => (
+                                <button
+                                  key={page}
+                                  onClick={() => setCurrentPage(page)}
+                                  className={`w-6 h-6 sm:w-[32px] sm:h-[33px] text-xs sm:text-sm rounded-[4px] opacity-100 flex items-center justify-center 
                   ${currentPage === page
-                    ? "bg-[#3F058F] text-white font-semibold"
-                    : "bg-white text-[#191616] hover:bg-gray-100"
-                  }`}
-              >
-                {page}
-              </button>
-            )
-          );
-        })()}
+                                      ? "bg-[#3F058F] text-white font-semibold"
+                                      : "bg-white text-[#191616] hover:bg-gray-100"
+                                    }`}
+                                >
+                                  {page}
+                                </button>
+                              )
+                            );
+                          })()}
 
-        {/* Next Button */}
-        <button
-          onClick={() =>
-            setCurrentPage((prev) =>
-              Math.min(prev + 1, totalPages)
-            )
-          }
-          disabled={currentPage === totalPages}
-          className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-l-2 sm:border-l-4 border-gray-200 pl-1 sm:pl-2
+                          {/* Next Button */}
+                          <button
+                            onClick={() =>
+                              setCurrentPage((prev) =>
+                                Math.min(prev + 1, totalPages)
+                              )
+                            }
+                            disabled={currentPage === totalPages}
+                            className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-l-2 sm:border-l-4 border-gray-200 pl-1 sm:pl-2
             ${currentPage === totalPages
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
-              : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-        >
-          <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold w-6 sm:w-[28px] h-3 sm:h-[15px] text-center 
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                                : "bg-white text-gray-700 hover:bg-gray-100"
+                              }`}
+                          >
+                            <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold w-6 sm:w-[28px] h-3 sm:h-[15px] text-center 
             ${currentPage === totalPages ? "text-gray-400" : "text-[#3F058F]"} opacity-100`}>
-            Next
-          </span>
-          <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
+                              Next
+                            </span>
+                            <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
                 ${currentPage === totalPages ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
-            <svg className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === totalPages ? "text-gray-500" : "text-white"}`} fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-            </svg>
-          </span>
-        </button>
-      </nav>
-    </div>
-  </div>
-</div>
+                              <svg className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === totalPages ? "text-gray-500" : "text-white"}`} fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </span>
+                          </button>
+                        </nav>
+                      </div>
+                    </div>
+                  </div>
                 </>
               )}
             </div>

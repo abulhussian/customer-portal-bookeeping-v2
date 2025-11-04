@@ -1,31 +1,65 @@
 
 "use client"
+import { BASE_URL } from "@/src/components/BaseUrl";
 import { useState } from "react";
+import DatePicker from "react-datepicker";
+import { toast } from "react-toastify";
 
 export default function CompanyProfile() {
+
+
+
+  const { uid, role } = JSON.parse(localStorage.getItem("userProfile"));
+  // console.log("userData in return form", uid, role)
+
   const [formData, setFormData] = useState({
-    companyName: "Acme Corporation",
-    registrationNumber: "REG123456",
-    taxId: "TAX987654",
-    address: "123 Business Street",
+    company_name: "Acme Corporation",
+    registration_number: "REG123456",
+    tax_id: "TAX987654",
+    street_address: "123 Business Street",
     city: "New York",
     state: "NY",
-    zipCode: "10001",
+    zip_code: "10001",
     country: "United States",
-    phone: "+1 (555) 123-4567",
+    phone_number: "+1 (555) 123-4567",
     email: "info@acmecorp.com",
     website: "www.acmecorp.com",
-    fiscalYearEnd: "12-31",
+    fiscal_year_end: '',
+    createdby_type: role,
+    createdby_id: uid,
     notes: "",
+    customer_id: uid,
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In a real app, you would use a toast library
-    alert("Company profile updated successfully!");
+    try {
+      const response = await fetch(`${BASE_URL}/api/book-keeping/add-company`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      console.log("Company profile updated:", response);
+
+      if (!response.ok) {
+        toast.error("Network response was not ok");
+        console.log(response)
+      }
+      else {
+        toast.success("Company profile updated successfully!");
+      }
+    } catch (error) {
+      
+      toast.error("Failed to update company profile.");
+    }
   };
 
+
+  
   const handleChange = (e) => {
+    console.log(e.target.name, e.target.value);
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -54,8 +88,8 @@ export default function CompanyProfile() {
                 </label>
                 <input
                   id="companyName"
-                  name="companyName"
-                  value={formData.companyName}
+                  name="company_name"
+                  value={formData.company_name}
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
@@ -67,8 +101,8 @@ export default function CompanyProfile() {
                 </label>
                 <input
                   id="registrationNumber"
-                  name="registrationNumber"
-                  value={formData.registrationNumber}
+                  name="registration_number"
+                  value={formData.registration_number}
                   onChange={handleChange}
                   className="w-full px-3 py-2  bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                 />
@@ -82,8 +116,8 @@ export default function CompanyProfile() {
                 </label>
                 <input
                   id="taxId"
-                  name="taxId"
-                  value={formData.taxId}
+                  name="tax_id"
+                  value={formData.tax_id}
                   onChange={handleChange}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900  focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                 />
@@ -92,14 +126,16 @@ export default function CompanyProfile() {
                 <label htmlFor="fiscalYearEnd" className="block text-sm font-medium text-gray-700">
                   Fiscal Year End (MM-DD)
                 </label>
+
                 <input
                   id="fiscalYearEnd"
-                  name="fiscalYearEnd"
-                  value={formData.fiscalYearEnd}
+                  name="fiscal_year_end"
+                  type="date"
+                  value={formData.fiscal_year_end}
                   onChange={handleChange}
-                  placeholder="12-31"
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                 />
+
               </div>
             </div>
 
@@ -109,8 +145,8 @@ export default function CompanyProfile() {
               </label>
               <input
                 id="address"
-                name="address"
-                value={formData.address}
+                name="street_address"
+                value={formData.street_address}
                 onChange={handleChange}
                 className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
               />
@@ -147,8 +183,8 @@ export default function CompanyProfile() {
                 </label>
                 <input
                   id="zipCode"
-                  name="zipCode"
-                  value={formData.zipCode}
+                  name="zip_code"
+                  value={formData.zip_code}
                   onChange={handleChange}
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:border-gray-300"
                 />
@@ -175,8 +211,8 @@ export default function CompanyProfile() {
                 </label>
                 <input
                   id="phone"
-                  name="phone"
-                  value={formData.phone}
+                  name="phone_number"
+                  value={formData.phone_number}
                   onChange={handleChange}
                   type="tel"
                   className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-300 "

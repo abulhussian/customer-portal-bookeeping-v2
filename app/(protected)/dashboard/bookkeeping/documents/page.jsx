@@ -1,11 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, FileText, Download, Eye, Trash2, File, X, MoreVertical } from "lucide-react";
 import { toast } from "sonner";
 import { HiArrowLeftCircle, HiArrowRightCircle } from "react-icons/hi2";
 import { useFilterModal } from "@/src/components/DashboardLayout";
+import DocumentUploadModal from "../../../../../src/components/uploadDocumentModal.jsx";
+import DocumentPreviewModal from "../../../../../src/components/DocumentPreviewModal.jsx";
+import { BASE_URL } from "@/src/components/BaseUrl.jsx";
 
 export default function Documents() {
   const { isFilterModalOpen, setIsFilterModalOpen } = useFilterModal();
@@ -17,63 +20,41 @@ export default function Documents() {
   const [tempCategoryFilter, setTempCategoryFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRowId, setSelectedRowId] = useState(null);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const itemsPerPage = 10;
-
-  const documents = [
-    {
-      id: 1,
-      name: "Bank Statement - January 2024.pdf",
-      type: "Bank Statement",
-      size: "2.4 MB",
-      uploadDate: "2024-01-15",
-      status: "Processed",
-      category: "Statements",
-      documentCount: 3
-    },
-    {
-      id: 2,
-      name: "Invoice #1234.pdf",
-      type: "Invoice",
-      size: "156 KB",
-      uploadDate: "2024-01-14",
-      status: "Pending",
-      category: "Invoices",
-      documentCount: 1
-    },
-    {
-      id: 3,
-      name: "Receipt_Payment_001.jpg",
-      type: "Payment Receipt",
-      size: "1.2 MB",
-      uploadDate: "2024-01-13",
-      status: "Processed",
-      category: "Receipts",
-      documentCount: 5
-    },
-    {
-      id: 4,
-      name: "Credit Card Statement.xlsx",
-      type: "Credit Card Statement",
-      size: "890 KB",
-      uploadDate: "2024-01-12",
-      status: "Processed",
-      category: "Statements",
-      documentCount: 2
-    },
-    {
-      id: 5,
-      name: "Expense Report Q4.pdf",
-      type: "Expense Report",
-      size: "3.1 MB",
-      uploadDate: "2024-01-10",
-      status: "Pending",
-      category: "Reports",
-      documentCount: 4
-    },
-  ];
+  const [documents, setDocuments] = useState([]);
+  const { uid } = JSON.parse(localStorage.getItem("userProfile"));
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [docId, setDocId] = useState(null);
+  
+  // Get unique document types and categories from API response for dynamic filters
+  const documentTypes = [...new Set(documents.map(doc => doc.document_type).filter(Boolean))];
+  const categories = [...new Set(documents.map(doc => doc.category).filter(Boolean))];
 
   const handleUpload = () => {
+    setIsUploadModalOpen(true);
     toast.success("Document upload initiated");
+  };
+
+  useEffect(() => {
+    getDocuments();
+  }, []);
+
+  const getDocuments = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/book-keeping/getAllDocuments/${uid}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      setDocuments(data);
+
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+    }
   };
 
   const getStatusGradient = (status) => {
@@ -85,12 +66,58 @@ export default function Documents() {
     return "bg-[linear-gradient(135deg,#6B7280_0%,#4B5563_100%)]";
   };
 
-  const handleView = (docId) => {
-    toast.info(`Viewing document ${docId}`);
+  const handleSaveDocument = (documentData) => {
+    const newDocument = {
+      ...documentData,
+      file: undefined
+    };
+
+    setDocuments(prev => [newDocument, ...prev]);
+    toast.success(`Document "${documentData.name}" uploaded successfully!`);
   };
 
-  const handleDownload = (docId) => {
-    toast.success(`Downloading document ${docId}`);
+  const handleView = (docId) => {
+    setIsViewModalOpen(true);
+    setDocId(docId);
+  };
+
+  const handleDownloadDocument = async (docId, docName) => {
+    try {
+      const response = await fetch(`${BASE_URL}/api/book-keeping/download-doc/${docId}`, {
+        method: "GET",
+      });
+
+      if (!response.ok) throw new Error("Failed to download document");
+
+      const blob = await response.blob();
+      const contentType = response.headers.get("Content-Type") || "";
+      const contentDisposition = response.headers.get("Content-Disposition");
+
+      let filename = docName || `document_${docId}`;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?([^"]+)"?/i);
+        if (match?.[1]) filename = match[1];
+      } else {
+        const ext = contentType.split("/")[1] || "bin";
+        filename = `${docId}.${ext}`;
+      }
+
+      const url = window.URL.createObjectURL(new Blob([blob], { type: contentType }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.style.display = "none";
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success(`"${filename}" downloaded successfully`);
+    } catch (error) {
+      console.error("Error downloading document:", error);
+      toast.error(error.message || "Download failed");
+    }
   };
 
   const handleDelete = (docId) => {
@@ -120,15 +147,18 @@ export default function Documents() {
     setSelectedRowId(id === selectedRowId ? null : id);
   };
 
-  // Filter documents based on search and filters
+  // Fixed filter logic - aligned with API response fields
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = searchTerm === "" ||
-      doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doc.category.toLowerCase().includes(searchTerm.toLowerCase());
+      (doc.doc_name && doc.doc_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (doc.document_type && doc.document_type.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (doc.category && doc.category.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesType = typeFilter === "all" || doc.type === typeFilter;
-    const matchesCategory = categoryFilter === "all" || doc.category === categoryFilter;
+    const matchesType = typeFilter === "all" || 
+      (doc.document_type && doc.document_type === typeFilter);
+
+    const matchesCategory = categoryFilter === "all" || 
+      (doc.category && doc.category === categoryFilter);
 
     return matchesSearch && matchesType && matchesCategory;
   });
@@ -140,78 +170,98 @@ export default function Documents() {
     currentPage * itemsPerPage
   );
 
+  console.log('Filter debug:', {
+    searchTerm,
+    typeFilter, 
+    categoryFilter,
+    totalDocuments: documents.length,
+    filteredCount: filteredDocuments.length,
+    documentTypes,
+    categories
+  });
+
   return (
     <div className="space-y-3 p-6 max-h-[calc(100vh)] overflow-y-auto pb-24 sm:pb-8">
+      <DocumentUploadModal
+        getDocuments={getDocuments}
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onSave={handleSaveDocument}
+      />
+      <DocumentPreviewModal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        docId={docId}
+      />
       <div className="flex items-center ">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">Documents</h2>
         </div>
       </div>
 
-     {/* Cards Section */}
-<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 sm:gap-2 mt-2 sm:mt-4">
-  {[
-    {
-      title: "Total Files",
-      count: 156,
-      icon: <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />,
-      bg: "/Rectangle145138.svg",
-      rounded: "rounded-[20px_6px_6px_6px] sm:rounded-[30px_6px_6px_6px] lg:rounded-[40px_6px_6px_6px]",
-      borderColor: "#7285D5",
-      iconBg: "#9A6EEF",
-    },
-    {
-      title: "Invoices",
-      count: 45,
-      icon: <File className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />,
-      bg: "/Rectangle145211orange.svg",
-      rounded: "rounded-[6px]",
-      borderColor: "#DD7949",
-      iconBg: "#E86118",
-    },
-    {
-      title: "Statements",
-      count: 32,
-      icon: <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />,
-      bg: "/Rectangle145235blue.svg",
-      rounded: "rounded-[6px]",
-      borderColor: "#7285D5",
-      iconBg: "#4C56CC",
-    },
-    {
-      title: "Receipts",
-      count: 79,
-      icon: <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />,
-      bg: "/Rectangle45212.svg",
-      rounded: "rounded-[6px_6px_20px_6px] sm:rounded-[6px_6px_30px_6px] lg:rounded-[6px_6px_40px_6px]",
-      borderColor: "#3CB0A5",
-      iconBg: "#229187",
-    },
-  ].map((card, index) => (
-    <div
-      key={index}
-      className={`relative w-full h-[110px] sm:h-[120px] lg:h-[130px] ${card.rounded} 
-        bg-cover bg-no-repeat hover:shadow-md transition-all cursor-pointer p-2 sm:p-3`}
-      style={{ backgroundImage: `url(${card.bg})` }}
-    >
-      <div className="flex flex-col justify-between h-full">
-        <div className="flex items-center gap-2 sm:gap-3 pb-1">
+      {/* Cards Section */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 sm:gap-2 mt-2 sm:mt-4">
+        {[
+          {
+            title: "Total Files",
+            count: documents.length,
+            icon: <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />,
+            bg: "/Rectangle145138.svg",
+            rounded: "rounded-[20px_6px_6px_6px] sm:rounded-[30px_6px_6px_6px] lg:rounded-[40px_6px_6px_6px]",
+            borderColor: "#7285D5",
+            iconBg: "#9A6EEF",
+          },
+          {
+            title: "Invoices",
+            count: documents.filter(doc => doc.category === "Invoices").length,
+            icon: <File className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />,
+            bg: "/Rectangle145211orange.svg",
+            rounded: "rounded-[6px]",
+            borderColor: "#DD7949",
+            iconBg: "#E86118",
+          },
+          {
+            title: "Statements",
+            count: documents.filter(doc => doc.category === "Statements").length,
+            icon: <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />,
+            bg: "/Rectangle145235blue.svg",
+            rounded: "rounded-[6px]",
+            borderColor: "#7285D5",
+            iconBg: "#4C56CC",
+          },
+          {
+            title: "Receipts",
+            count: documents.filter(doc => doc.category === "Receipts").length,
+            icon: <FileText className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />,
+            bg: "/Rectangle45212.svg",
+            rounded: "rounded-[6px_6px_20px_6px] sm:rounded-[6px_6px_30px_6px] lg:rounded-[6px_6px_40px_6px]",
+            borderColor: "#3CB0A5",
+            iconBg: "#229187",
+          },
+        ].map((card, index) => (
           <div
-            className="p-1.5 sm:p-2 rounded-full w-[30px] h-[30px] sm:w-[34px] sm:h-[34px] flex items-center justify-center"
-            style={{ backgroundColor: card.iconBg }}
+            key={index}
+            className={`relative w-full h-[110px] sm:h-[120px] lg:h-[130px] ${card.rounded} 
+        bg-cover bg-no-repeat hover:shadow-md transition-all cursor-pointer p-2 sm:p-3`}
+            style={{ backgroundImage: `url(${card.bg})` }}
           >
-            {card.icon}
+            <div className="flex flex-col justify-between h-full">
+              <div className="flex items-center gap-2 sm:gap-3 pb-1">
+                <div
+                  className="p-1.5 sm:p-2 rounded-full w-[30px] h-[30px] sm:w-[34px] sm:h-[34px] flex items-center justify-center"
+                  style={{ backgroundColor: card.iconBg }}
+                >
+                  {card.icon}
+                </div>
+                <p className="text-xs sm:text-sm font-medium text-white uppercase tracking-wider">
+                  {card.title}
+                </p>
+              </div>
+              <p className="text-lg sm:text-xl font-bold text-white mt-1">{card.count}</p>
+            </div>
           </div>
-          <p className="text-xs sm:text-sm font-medium text-white uppercase tracking-wider">
-            {card.title}
-          </p>
-        </div>
-        <p className="text-lg sm:text-xl font-bold text-white mt-1">{card.count}</p>
+        ))}
       </div>
-    </div>
-  ))}
-</div>
-
 
       {/* Search and Filter Bar */}
       <div className="">
@@ -219,7 +269,6 @@ export default function Documents() {
           <div className="flex flex-col border border-gray-100 p-1 md:flex-row items-center gap-3 w-full">
             {/* 🔍 Search Section */}
             <div className="relative flex-1 w-full bg-left-top opacity-100">
-              {/* 👇 Mobile Search Toggle */}
               {!isSearchActive && (
                 <div className="flex items-center gap-2">
                   <img
@@ -237,7 +286,6 @@ export default function Documents() {
                 </div>
               )}
 
-              {/* 👇 When active: show search input + small search icon */}
               {isSearchActive && (
                 <div className="relative w-4/5">
                   <img
@@ -273,20 +321,14 @@ export default function Documents() {
                   <span className="text-[14px] leading-[11px] font-medium text-[#625377] dark:text-gray-400">
                     Filters
                   </span>
-                  {/* ✅ Show badge only when filters are actually applied */}
-      {(
-        (typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types") ||
-        (categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories")
-      ) && (
-        <span className="w-[19px] h-[19px] bg-[#E4E3F1] border border-[#E4E3F1] rounded-full flex items-center justify-center text-[#615376] text-[12px]">
-          {[
-            typeFilter && typeFilter !== "" && typeFilter !== "all" && typeFilter !== "All Types" ? 1 : 0,
-            categoryFilter && categoryFilter !== "" && categoryFilter !== "all" && categoryFilter !== "All Categories" ? 1 : 0,
-          ]
-            .filter(Boolean)
-            .length}
-        </span>
-      )}
+                  {(typeFilter !== "all" || categoryFilter !== "all") && (
+                    <span className="w-[19px] h-[19px] bg-[#E4E3F1] border border-[#E4E3F1] rounded-full flex items-center justify-center text-[#615376] text-[12px]">
+                      {[
+                        typeFilter !== "all" ? 1 : 0,
+                        categoryFilter !== "all" ? 1 : 0,
+                      ].reduce((a, b) => a + b, 0)}
+                    </span>
+                  )}
                 </button>
 
                 <button
@@ -359,13 +401,11 @@ export default function Documents() {
       {isFilterModalOpen && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-20 flex justify-center p-4 box-shadow-lg">
           <div className={`fixed inset-0 flex items-center justify-center z-50 ${isFilterModalOpen ? "visible" : "invisible"}`}>
-            {/* Background overlay */}
             <div
               className="absolute inset-0 bg-black opacity-30"
               onClick={() => setIsFilterModalOpen(false)}
             ></div>
 
-            {/* Modal content */}
             <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-2 overflow-y-auto dark:bg-gray-800">
               <div className="flex justify-center items-center p-6 pb-0">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">Filters</h3>
@@ -378,7 +418,7 @@ export default function Documents() {
               </div>
 
               <div className="space-y-4 p-6">
-                {/* Type Filter */}
+                {/* Type Filter - Dynamic based on API data */}
                 <div className="relative">
                   <label className="block text-sm text-[#3B444D] font-medium text-gray-700 mb-1 dark:text-white">
                     Type
@@ -389,17 +429,14 @@ export default function Documents() {
                     className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 pr-8 appearance-none focus:ring-blue-500 focus:border-blue-500 text-[#A8ACB7] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   >
                     <option className="text-[#A8ACB7]" value="all">All Types</option>
-                    <option value="Bank Statement">Bank Statement</option>
-                    <option value="Invoice">Invoice</option>
-                    <option value="Payment Receipt">Payment Receipt</option>
-                    <option value="Credit Card Statement">Credit Card Statement</option>
-                    <option value="Expense Report">Expense Report</option>
+                    {documentTypes.map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
                   </select>
-                  {/* Custom Arrow */}
                   <div className="pointer-events-none absolute right-3 top-1/2 translate-y-1/2 w-[14px] h-[8px] bg-[#A7ACB7] opacity-100 clip-path-triangle"></div>
                 </div>
 
-                {/* Category Filter */}
+                {/* Category Filter - Dynamic based on API data */}
                 <div className="relative">
                   <label className="block text-sm text-[#3B444D] font-medium text-gray-700 mb-1 dark:text-white">
                     Category
@@ -410,17 +447,14 @@ export default function Documents() {
                     className="w-full bg-[#F7F8FC] border border-[#F2F2FA] rounded-md px-3 py-2 pr-8 appearance-none focus:ring-blue-500 focus:border-blue-500 text-[#A8ACB7] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   >
                     <option className="text-[#A8ACB7]" value="all">All Categories</option>
-                    <option value="Statements">Statements</option>
-                    <option value="Invoices">Invoices</option>
-                    <option value="Receipts">Receipts</option>
-                    <option value="Reports">Reports</option>
+                    {categories.map(category => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
                   </select>
-                  {/* Custom Arrow */}
                   <div className="pointer-events-none absolute right-3 top-1/2 translate-y-1/2 w-[14px] h-[8px] bg-[#A7ACB7] opacity-100 clip-path-triangle"></div>
                 </div>
               </div>
 
-              {/* Buttons */}
               <div className="flex justify-center items-center w-full space-x-3 p-6 pt-0">
                 <button
                   onClick={applyFilters}
@@ -453,234 +487,192 @@ export default function Documents() {
             ) : (
               <>
                 <div className="w-full overflow-x-auto">
-  <table className="min-w-[800px] w-full divide-y divide-gray-200 text-center">
-    <thead className="w-full h-[50px] bg-[#F6F5FA] rounded-[10px] opacity-100 sticky top-0 dark:bg-gray-800">
-      <tr>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
-          DOCUMENT #
-        </th>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
-          FILE NAME
-        </th>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
-          FILES
-        </th>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
-          TYPE
-        </th>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
-          CATEGORY
-        </th>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
-          SIZE
-        </th>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
-          STATUS
-        </th>
-        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
-          ACTIONS
-        </th>
-      </tr>
-    </thead>
+                  <table className="min-w-[800px] w-full divide-y divide-gray-200 text-center">
+                    <thead className="w-full h-[50px] bg-[#F6F5FA] rounded-[10px] opacity-100 sticky top-0 dark:bg-gray-800">
+                      <tr>
+                        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
+                          DOCUMENT #
+                        </th>
+                        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
+                          FILE NAME
+                        </th>
+                        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
+                          TYPE
+                        </th>
+                        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
+                          CATEGORY
+                        </th>
+                        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
+                          SIZE
+                        </th>
+                        <th className="text-left text-[10px] sm:text-[12px] leading-[20px] font-medium text-[#3B444D] px-3 sm:px-4 py-3 dark:text-white">
+                          ACTIONS
+                        </th>
+                      </tr>
+                    </thead>
 
-    <tbody className="bg-white divide-y divide-gray-200 text-center dark:bg-gray-800">
-      {currentItems.map((doc, index) => (
-        <tr
-          key={doc.id}
-          onClick={() => handleRowClick(doc.id)}
-          className={`h-[61px] bg-white rounded-[8px] opacity-100 transition-all cursor-pointer 
+                    <tbody className="bg-white divide-y divide-gray-200 text-center dark:bg-gray-800">
+                      {currentItems.map((doc, index) => (
+                        <tr
+                          key={doc.id}
+                          onClick={() => handleRowClick(doc.id)}
+                          className={`h-[61px] bg-white rounded-[8px] opacity-100 transition-all cursor-pointer 
             ${selectedRowId === doc.id
-              ? "bg-purple-100 shadow-lg dark:bg-purple-900/20"
-              : "hover:shadow-md hover:bg-gray-100 dark:hover:bg-gray-700"
-            } dark:bg-gray-800`}
-        >
-          <td className="text-[10px] sm:text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-3 sm:px-4 py-3 dark:text-purple-400">
-            {doc.id}
-          </td>
+                              ? "bg-purple-100 shadow-lg dark:bg-purple-900/20"
+                              : "hover:shadow-md hover:bg-gray-100 dark:hover:bg-gray-700"
+                            } dark:bg-gray-800`}
+                        >
+                          <td className="text-[10px] sm:text-[12px] text-left leading-[12px] font-bold text-[#3F058F] px-3 sm:px-4 py-3 dark:text-purple-400">
+                            {index + 1}
+                          </td>
 
-          <td className="px-2 sm:px-2 py-3 text-left text-[12px] sm:text-[14px] leading-[16px] font-bold text-[#191616] opacity-100 dark:text-white">
-            {doc.name}
-          </td>
+                          <td className="px-2 sm:px-2 py-3 text-left text-[12px] sm:text-[14px] leading-[16px] font-bold text-[#191616] opacity-100 dark:text-white">
+                            {doc.doc_name}
+                          </td>
 
-          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap">
-            <div className="flex justify-start items-center">
-              <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 mr-1 sm:mr-2" />
-              <span className="text-xs sm:text-sm text-gray-900 dark:text-white">{doc.documentCount} files</span>
-            </div>
-          </td>
+                          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap">
+                            <span className="text-xs sm:text-sm text-gray-900 dark:text-white">{doc.document_type}</span>
+                          </td>
 
-          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap">
-            <span className="text-xs sm:text-sm text-gray-900 dark:text-white">{doc.type}</span>
-          </td>
+                          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
+                            {doc.category}
+                          </td>
 
-          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
-            {doc.category}
-          </td>
+                          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-[10px] sm:text-[12px] leading-[16px] font-normal text-[#191616] opacity-100 dark:text-white">
+                            {doc.file_size_mb + " MB"}
+                          </td>
 
-          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap text-[10px] sm:text-[12px] leading-[16px] font-normal text-[#191616] opacity-100 dark:text-white">
-            {doc.size}
-          </td>
+                          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap">
+                            <div className="flex justify-center items-center space-x-1 sm:space-x-2">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleView(doc.id);
+                                }}
+                                className="text-blue-600 hover:text-blue-700 transition-colors dark:text-blue-400"
+                                title="View Details"
+                              >
+                                <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDownloadDocument(doc.id, doc.doc_name);
+                                }}
+                                className="text-gray-600 hover:text-gray-700 transition-colors dark:text-gray-400"
+                              >
+                                <Download className="w-3 h-3 sm:w-4 sm:h-4" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete(doc.id);
+                                }}
+                                className="text-gray-600 hover:text-red-700 transition-colors dark:text-gray-400"
+                              >
+                                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                              </button>
+                              <button className="md:hidden text-gray-600 hover:text-gray-700 transition-colors dark:text-gray-400">
+                                <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
-          {/* Status with Gradient */}
-          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap">
-            <span
-              className={`inline-flex justify-center items-center w-[70px] sm:w-[100px] h-[20px] sm:h-[24px] rounded-[6px] ${getStatusGradient(doc.status)} text-white text-[8px] sm:text-xs uppercase font-bold opacity-100 shadow-sm`}
-            >
-              <span className="text-white text-[8px] sm:text-[10px] leading-[12px] font-semibold font-inter tracking-[1px] sm:tracking-[2px] uppercase text-center">
-                {doc.status}
-              </span>
-            </span>
-          </td>
-
-          <td className="px-3 sm:px-4 py-3 text-left whitespace-nowrap">
-            <div className="flex justify-center items-center space-x-1 sm:space-x-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleView(doc.id);
-                }}
-                className="text-blue-600 hover:text-blue-700 transition-colors dark:text-blue-400"
-                title="View Details"
-              >
-                <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDownload(doc.id);
-                }}
-                className="text-gray-600 hover:text-gray-700 transition-colors dark:text-gray-400"
-              >
-                <Download className="w-3 h-3 sm:w-4 sm:h-4" />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete(doc.id);
-                }}
-                className="text-gray-600 hover:text-red-700 transition-colors dark:text-gray-400"
-              >
-                <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-              </button>
-              <button className="md:hidden text-gray-600 hover:text-gray-700 transition-colors dark:text-gray-400">
-                <MoreVertical className="w-3 h-3 sm:w-4 sm:h-4" />
-              </button>
-            </div>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
-{/* Pagination Controls */}
-<div className="h-auto sm:h-[55px] w-full bg-[#F5F5FA] rounded-[10px] opacity-100 px-3 sm:px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 sticky bottom-0 z-10 dark:bg-gray-800 dark:border-gray-700">
-  <div className="flex flex-col sm:flex-row sm:flex-1 sm:items-center sm:justify-between gap-3 sm:gap-0 w-full">
-    <div className="text-center sm:text-left">
-      <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
-        Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
-        <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredDocuments.length)}</span> of{' '}
-        <span className="font-medium">{filteredDocuments.length}</span> results
-      </p>
-    </div>
-    <div className="w-full sm:w-auto">
-      <nav
-        className="flex items-center justify-center space-x-1 sm:space-x-2 w-full sm:w-[258px] h-[40px] bg-[#FAFAFC] border border-[#EEEFF2] rounded-[6px] opacity-100 px-1 sm:px-2 dark:bg-gray-700 dark:border-gray-600"
-        aria-label="Pagination"
-      >
-        {/* Previous Button */}
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-r-2 sm:border-r-4 border-gray-200 pr-1 sm:pr-2 
+                {/* Pagination Controls */}
+                <div className="h-auto sm:h-[55px] w-full bg-[#F5F5FA] rounded-[10px] opacity-100 px-3 sm:px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 sticky bottom-0 z-10 dark:bg-gray-800 dark:border-gray-700">
+                  <div className="flex flex-col sm:flex-row sm:flex-1 sm:items-center sm:justify-between gap-3 sm:gap-0 w-full">
+                    <div className="text-center sm:text-left">
+                      <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                        Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
+                        <span className="font-medium">{Math.min(currentPage * itemsPerPage, filteredDocuments.length)}</span> of{' '}
+                        <span className="font-medium">{filteredDocuments.length}</span> results
+                      </p>
+                    </div>
+                    <div className="w-full sm:w-auto">
+                      <nav
+                        className="flex items-center justify-center space-x-1 sm:space-x-2 w-full sm:w-[258px] h-[40px] bg-[#FAFAFC] border border-[#EEEFF2] rounded-[6px] opacity-100 px-1 sm:px-2 dark:bg-gray-700 dark:border-gray-600"
+                        aria-label="Pagination"
+                      >
+                        {/* Previous Button */}
+                        <button
+                          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-r-2 sm:border-r-4 border-gray-200 pr-1 sm:pr-2 
             ${currentPage === 1
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50 dark:bg-gray-600"
-              : "bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
-            }`}
-        >
-          <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50 dark:bg-gray-600"
+                              : "bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
+                            }`}
+                        >
+                          <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
                                 ${currentPage === 1 ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
-            <HiArrowLeftCircle className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === 1 ? "text-gray-500" : "text-white"}`} />
-          </span>
-          <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F] dark:text-purple-400"} w-6 sm:w-[28px] h-3 sm:h-[15px] text-center opacity-100`}>
-            Prev
-          </span>
-        </button>
+                            <HiArrowLeftCircle className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === 1 ? "text-gray-500" : "text-white"}`} />
+                          </span>
+                          <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold ${currentPage === 1 ? "text-gray-400" : "text-[#3F058F] dark:text-purple-400"} w-6 sm:w-[28px] h-3 sm:h-[15px] text-center opacity-100`}>
+                            Prev
+                          </span>
+                        </button>
 
-        {/* Page Numbers */}
-        {(() => {
-          const visiblePages = typeof window !== 'undefined' && window.innerWidth < 640 ? 3 : 5;
-          let startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
-          let endPage = Math.min(totalPages, startPage + visiblePages - 1);
+                        {/* Page Numbers */}
+                        {(() => {
+                          const visiblePages = typeof window !== 'undefined' && window.innerWidth < 640 ? 3 : 5;
+                          let startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
+                          let endPage = Math.min(totalPages, startPage + visiblePages - 1);
 
-          if (endPage - startPage < visiblePages - 1) {
-            startPage = Math.max(1, endPage - visiblePages + 1);
-          }
+                          if (endPage - startPage < visiblePages - 1) {
+                            startPage = Math.max(1, endPage - visiblePages + 1);
+                          }
 
-          return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
-            (page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-6 h-6 sm:w-[32px] sm:h-[33px] text-xs sm:text-sm rounded-[4px] opacity-100 flex items-center justify-center 
+                          return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map(
+                            (page) => (
+                              <button
+                                key={page}
+                                onClick={() => setCurrentPage(page)}
+                                className={`w-6 h-6 sm:w-[32px] sm:h-[33px] text-xs sm:text-sm rounded-[4px] opacity-100 flex items-center justify-center 
                   ${currentPage === page
-                    ? "bg-[#3F058F] text-white font-semibold"
-                    : "bg-white text-[#191616] hover:bg-gray-100 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
-                  }`}
-              >
-                {page}
-              </button>
-            )
-          );
-        })()}
+                                    ? "bg-[#3F058F] text-white font-semibold"
+                                    : "bg-white text-[#191616] hover:bg-gray-100 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
+                                  }`}
+                              >
+                                {page}
+                              </button>
+                            )
+                          );
+                        })()}
 
-        {/* Next Button */}
-        <button
-          onClick={() =>
-            setCurrentPage((prev) =>
-              Math.min(prev + 1, totalPages)
-            )
-          }
-          disabled={currentPage === totalPages}
-          className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-l-2 sm:border-l-4 border-gray-200 pl-1 sm:pl-2
+                        {/* Next Button */}
+                        <button
+                          onClick={() =>
+                            setCurrentPage((prev) =>
+                              Math.min(prev + 1, totalPages)
+                            )
+                          }
+                          disabled={currentPage === totalPages}
+                          className={`flex items-center gap-1 px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-[4px] transition-colors border-l-2 sm:border-l-4 border-gray-200 pl-1 sm:pl-2
             ${currentPage === totalPages
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50 dark:bg-gray-600"
-              : "bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
-            }`}
-        >
-          <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold w-6 sm:w-[28px] h-3 sm:h-[15px] text-center 
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed opacity-50 dark:bg-gray-600"
+                              : "bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
+                            }`}
+                        >
+                          <span className={`text-[10px] sm:text-[12px] leading-[16px] font-bold w-6 sm:w-[28px] h-3 sm:h-[15px] text-center 
             ${currentPage === totalPages ? "text-gray-400" : "text-[#3F058F] dark:text-purple-400"} opacity-100`}>
-            Next
-          </span>
-          <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
+                            Next
+                          </span>
+                          <span className={`flex items-center justify-center h-3 w-3 sm:h-[14px] sm:w-[14px] rounded 
                                                     ${currentPage === Math.ceil(filteredDocuments.length / 10) ? "bg-gray-300" : "bg-[#3F058F]"} opacity-100`}>
-            <HiArrowRightCircle className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === Math.ceil(filteredDocuments.length / 10) ? "text-gray-500" : "text-white"}`} />
-          </span>
-        </button>
-      </nav>
-    </div>
-  </div>
-</div>
+                            <HiArrowRightCircle className={`h-2 w-2 sm:h-[10px] sm:w-[10px] ${currentPage === Math.ceil(filteredDocuments.length / 10) ? "text-gray-500" : "text-white"}`} />
+                          </span>
+                        </button>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Upload Card */}
-      <Card className="border-dashed border-2 border-gray-300 dark:border-gray-600">
-        <CardContent className="pt-6">
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="p-4 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
-              <Upload className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Upload Documents</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 max-w-sm">
-              Drag and drop your files here, or click to browse. Supports PDF, Excel, Word, and image files.
-            </p>
-            <Button onClick={handleUpload} className="bg-blue-600 hover:bg-blue-700 text-white">
-              Choose Files
-            </Button>
           </div>
         </CardContent>
       </Card>
