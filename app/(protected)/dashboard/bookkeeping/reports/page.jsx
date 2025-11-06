@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Download, FileText, TrendingUp, Calendar, BarChart3, Calculator, File } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import {
   Select,
   SelectContent,
@@ -52,7 +53,8 @@ export default function Reports() {
   };
 
   return (
-    <div className="space-y-6 max-h-[calc(100vh)] overflow-y-auto p-6 max-w-7xl mx-auto pb-24 sm:pb-8">
+    <motion.div className=" flex flex-col min-h-screen ">
+    <div className=" w-full space-y-3 max-h-[calc(100vh)] overflow-y-auto p-3 max-w-7xl mx-auto pb-24 sm:pb-8">
       <div>
   <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white mb-4">Available Reports</h3>
  <div className="flex flex-wrap gap-3 sm:gap-4 md:gap-5 mt-4">
@@ -209,5 +211,6 @@ export default function Reports() {
         </CardContent>
       </Card>
     </div>
+    </motion.div>
   );
 }

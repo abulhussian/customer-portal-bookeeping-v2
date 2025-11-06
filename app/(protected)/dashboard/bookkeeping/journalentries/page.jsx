@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { useFilterModal } from "@/src/components/DashboardLayout";
 import { BASE_URL } from "@/src/components/BaseUrl";
+import { motion } from "framer-motion"
 
 export default function JournalEntries() {
   const { isFilterModalOpen, setIsFilterModalOpen } = useFilterModal();
@@ -414,18 +415,28 @@ const handleEdit = (entry) => {
   };
 
   // Filter entries based on search and filters
-  const filteredEntries = entries.filter(entry => {
-    const matchesSearch = searchTerm === '' ||
-      entry.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      entry.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      entry.debitAccount.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      entry.creditAccount.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesType = typeFilter === 'all' || entry.type === typeFilter;
-    const matchesCategory = categoryFilter === 'all' || entry.category === categoryFilter;
+const filteredEntries = Array.isArray(entries) 
+  ? entries.filter(entry => {
+      const reference = entry?.reference?.toLowerCase() || '';
+      const description = entry?.description?.toLowerCase() || '';
+      const debitAccount = entry?.debitAccount?.toLowerCase() || '';
+      const creditAccount = entry?.creditAccount?.toLowerCase() || '';
+      const search = searchTerm?.toLowerCase() || '';
 
-    return matchesSearch && matchesType && matchesCategory;
-  });
+      const matchesSearch =
+        search === '' ||
+        reference.includes(search) ||
+        description.includes(search) ||
+        debitAccount.includes(search) ||
+        creditAccount.includes(search);
+
+      const matchesType = typeFilter === 'all' || entry?.type === typeFilter;
+      const matchesCategory = categoryFilter === 'all' || entry?.category === categoryFilter;
+
+      return matchesSearch && matchesType && matchesCategory;
+    })
+  : [];
 
   // Pagination
   const totalPages = Math.ceil(filteredEntries.length / itemsPerPage);
@@ -489,7 +500,8 @@ const handleEdit = (entry) => {
   };
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 max-h-[calc(100vh)] overflow-y-auto pb-24 sm:pb-8">
+    <motion.div className=" flex flex-col min-h-screen ">
+    <div className="space-y-3 p-2 sm:p-6 max-h-[calc(100vh)] overflow-y-auto pb-24 sm:pb-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -1242,5 +1254,6 @@ const handleEdit = (entry) => {
         </CardContent>
       </Card>
     </div>
+    </motion.div>
   );
 }

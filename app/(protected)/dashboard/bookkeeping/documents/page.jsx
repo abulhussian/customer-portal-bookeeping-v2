@@ -9,7 +9,7 @@ import { useFilterModal } from "@/src/components/DashboardLayout";
 import DocumentUploadModal from "../../../../../src/components/uploadDocumentModal.jsx";
 import DocumentPreviewModal from "../../../../../src/components/DocumentPreviewModal.jsx";
 import { BASE_URL } from "@/src/components/BaseUrl.jsx";
-
+import { motion } from "framer-motion";
 export default function Documents() {
   const { isFilterModalOpen, setIsFilterModalOpen } = useFilterModal();
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -181,7 +181,9 @@ export default function Documents() {
   });
 
   return (
-    <div className="space-y-3 p-6 max-h-[calc(100vh)] overflow-y-auto pb-24 sm:pb-8">
+            <motion.div className=" flex flex-col min-h-screen ">
+    
+    <div className="space-y-3 p-3 max-h-[calc(100vh)] overflow-y-auto pb-24 sm:pb-8">
       <DocumentUploadModal
         getDocuments={getDocuments}
         isOpen={isUploadModalOpen}
@@ -677,5 +679,6 @@ export default function Documents() {
         </CardContent>
       </Card>
     </div>
+    </motion.div> 
   );
 }

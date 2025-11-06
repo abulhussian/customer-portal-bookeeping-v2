@@ -12,6 +12,8 @@ const AddAccountModal = ({ isOpen, onClose, onSave, isView, isUpdate, accountId,
 
   const viewdata = viewData || {};
   console.log("viewdata", viewdata);
+  console.log("accountId", accountId); // 👈 Debug log to check accountId
+  console.log("isUpdate", isUpdate); // 👈 Debug log to check isUpdate
 
   const [newAccount, setNewAccount] = useState({
     account_name: "",
@@ -30,8 +32,6 @@ const AddAccountModal = ({ isOpen, onClose, onSave, isView, isUpdate, accountId,
   // Get company name from companies data based on company_id
   const getCompanyName = (companyId) => {
     if (!companies || companies.length === 0) return "-";
-
-    // Find the company in the companies array
     const company = companies.find(comp => comp.id === companyId || comp.id === parseInt(companyId));
     return company ? company.company_name : "-";
   };
@@ -39,7 +39,7 @@ const AddAccountModal = ({ isOpen, onClose, onSave, isView, isUpdate, accountId,
   // Reset form when modal opens or viewData changes
   useEffect(() => {
     if (viewData && Object.keys(viewData).length > 0) {
-      // ✅ Fill form with the viewData object including select fields
+      console.log("Setting form with viewData:", viewData); // 👈 Debug log
       setNewAccount({
         company_id: viewData.company_id || 0,
         account_number: viewData.account_number || 0,
@@ -54,7 +54,7 @@ const AddAccountModal = ({ isOpen, onClose, onSave, isView, isUpdate, accountId,
         customCategory: viewData.customCategory || ""
       });
     } else {
-      // 🧹 Reset form to empty for add mode
+      console.log("Resetting form for add mode"); // 👈 Debug log
       setNewAccount({
         account_name: "",
         account_number: "",
@@ -88,7 +88,7 @@ const AddAccountModal = ({ isOpen, onClose, onSave, isView, isUpdate, accountId,
 
   const getCompanies = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/book-keeping/get-company/${uid}`, {
+      const response = await fetch(`${BASE_URL}/api/book-keeping/get-companies/${uid}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ const AddAccountModal = ({ isOpen, onClose, onSave, isView, isUpdate, accountId,
       });
 
       const data = await response.json();
-      setCompanies([data]);
+      setCompanies(data);
     } catch (error) {
       console.error("Error fetching companies:", error);
     }
@@ -134,14 +134,17 @@ const AddAccountModal = ({ isOpen, onClose, onSave, isView, isUpdate, accountId,
       let url;
       let method;
 
+      // 👈 FIXED THE CONDITIONAL LOGIC HERE
       if (isUpdate && accountId) {
         // Update existing account
-        url = `${BASE_URL}/api/book-keeping/update-account/${accountId}`;
+        url = `${BASE_URL}/api/book-keeping/update-account/${accountId}`; // 👈 Use BASE_URL
         method = "PATCH";
+        console.log("Calling UPDATE API for accountId:", accountId); // 👈 Debug log
       } else {
         // Create new account
         url = `${BASE_URL}/api/book-keeping/add-account`;
         method = "POST";
+        console.log("Calling CREATE API"); // 👈 Debug log
       }
 
       // Prepare the data to be sent
@@ -158,6 +161,10 @@ const AddAccountModal = ({ isOpen, onClose, onSave, isView, isUpdate, accountId,
         ...(newAccount.category !== "other" && { customCategory: undefined })
       };
 
+      console.log("Sending data:", accountData); // 👈 Debug log
+      console.log("URL:", url); // 👈 Debug log
+      console.log("Method:", method); // 👈 Debug log
+
       response = await fetch(url, {
         method: method,
         headers: {
@@ -167,6 +174,7 @@ const AddAccountModal = ({ isOpen, onClose, onSave, isView, isUpdate, accountId,
       });
 
       const data = await response.json();
+      console.log("Response:", data); // 👈 Debug log
 
       if (response.ok) {
         const successMessage = isUpdate
@@ -259,7 +267,6 @@ const AddAccountModal = ({ isOpen, onClose, onSave, isView, isUpdate, accountId,
                   placeholder="Enter account number"
                   className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 />
-
               </div>
 
               {/* Account Name */}
@@ -482,7 +489,7 @@ const AddAccountModal = ({ isOpen, onClose, onSave, isView, isUpdate, accountId,
         </div>
 
         {/* Modal Footer */}
-        <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
+        <div className="border-t border-gray-200 px-2 m-1 bg-gray-50">
           <div className="flex flex-col sm:flex-row gap-3 justify-end">
             <button
               onClick={onClose}
